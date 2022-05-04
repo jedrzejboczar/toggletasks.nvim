@@ -44,7 +44,7 @@ function M.config_files(opts)
         for _, path in ipairs(config.search_paths) do
             local file = dir / path
             if file:exists() then
-                table.insert(files, file)
+                table.insert(files, file:absolute())
             end
         end
     end
@@ -58,9 +58,9 @@ function M.tasks(opts)
 
     -- Create tasks
     local tasks = {}
-    for _, conf in ipairs(files) do
-        local found = Task:from_config(conf) or {}
-        utils.debug('discover: found %d tasks in file: %s', #found, conf:absolute())
+    for _, file in ipairs(files) do
+        local found = Task:from_config(file) or {}
+        utils.debug('discover: found %d tasks in file: %s', #found, file)
         vim.list_extend(tasks, found)
     end
     utils.debug('discover: found %d tasks in total', #tasks)

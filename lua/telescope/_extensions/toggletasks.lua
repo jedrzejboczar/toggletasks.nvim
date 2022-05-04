@@ -5,6 +5,6 @@ return telescope.register_extension {
     exports = {
         spawn = pickers.spawn,
         select = pickers.select,
-        -- edit = pickers.edit,
+        edit = pickers.edit,
     },
 }

@@ -4,6 +4,7 @@ local action_state = require('telescope.actions.state')
 local actions = require('telescope.actions')
 local conf = require('telescope.config').values
 local finders = require('telescope.finders')
+local make_entry = require('telescope.make_entry')
 local pickers = require('telescope.pickers')
 local previewers = require('telescope.previewers')
 
@@ -47,7 +48,7 @@ end
 function M.spawn(opts)
     opts = opts or {}
     pickers.new(opts, {
-        prompt_title = "Tasks",
+        prompt_title = "Spawn tasks",
         finder = finders.new_table {
             results = discovery.tasks(opts),
             entry_maker = make_task_entry,
@@ -79,7 +80,7 @@ end
 function M.select(opts)
     opts = opts or {}
     pickers.new(opts, {
-        prompt_title = "Tasks",
+        prompt_title = "Select tasks",
         finder = finders.new_table {
             results = vim.tbl_values(Task.get_all()),
             entry_maker = make_task_entry,
@@ -105,6 +106,19 @@ function M.select(opts)
 
             return true
         end,
+    }):find()
+end
+
+function M.edit(opts)
+    opts = opts or {}
+    pickers.new(opts, {
+        prompt_title = "Edit config",
+        finder = finders.new_table {
+            results = discovery.config_files(opts),
+            entry_maker = make_entry.gen_from_file(opts),
+        },
+        previewer = conf.file_previewer(opts),
+        sorter = conf.file_sorter(opts),
     }):find()
 end
 
