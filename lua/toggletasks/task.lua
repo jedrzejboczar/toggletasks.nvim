@@ -185,4 +185,8 @@ function Task:spawn(win)
     utils.debug('Task:spawn: task "%s" in term "%s"', self:id(), self.term.id)
 end
 
+function Task:is_running()
+    return Task.get(self:id()) ~= nil
+end
+
 return Task

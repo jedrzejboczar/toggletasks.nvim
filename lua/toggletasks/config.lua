@@ -25,6 +25,7 @@ local function defaults()
         telescope = {
             spawn = {
                 open_single = true,
+                show_running = false,
                 mappings = {
                     select_float = '<C-f>',
                     spawn_all = '<C-a>',

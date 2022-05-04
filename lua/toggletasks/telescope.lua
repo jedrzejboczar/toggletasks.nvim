@@ -131,12 +131,25 @@ end
 
 function M.spawn(opts)
     opts = opts or {}
+
     -- Make sure to later use the window from which the picker was started
     opts.win = opts.win or vim.api.nvim_get_current_win()
+
+    local c = config.telescope.spawn
+    local open_single = vim.F.if_nil(opts.open_single, c.open_single)
+    local show_running = vim.F.if_nil(opts.show_running, c.show_running)
+
+    local tasks = discovery.tasks(opts)
+    if not show_running then
+        tasks = vim.tbl_filter(function(task)
+            return not task:is_running()
+        end, tasks)
+    end
+
     pickers.new(opts, {
         prompt_title = "Spawn tasks",
         finder = finders.new_table {
-            results = discovery.tasks(opts),
+            results = tasks,
             entry_maker = make_task_entry,
         },
         sorter = conf.generic_sorter(opts),
@@ -157,9 +170,6 @@ function M.spawn(opts)
             local spawn_info = function(tasks)
                 utils.info('Spawned %d tasks', #tasks)
             end
-
-            local c = config.telescope.spawn
-            local open_single = opts.open_single ~= nil and opts.open_single or c.open_single
 
             local replace = {
                 select_default = act { open = open_single },
