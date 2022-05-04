@@ -127,6 +127,12 @@ local function task_action(getter, handler, post)
     end
 end
 
+local function multi_task_info(action_info)
+    return function(tasks)
+        utils.info('%s %d tasks', action_info, #tasks)
+    end
+end
+
 -- Pickers
 
 function M.spawn(opts)
@@ -167,9 +173,7 @@ function M.spawn(opts)
                     end
                 end
             end
-            local spawn_info = function(tasks)
-                utils.info('Spawned %d tasks', #tasks)
-            end
+            local info = multi_task_info('Spawned')
 
             local replace = {
                 select_default = act { open = open_single },
@@ -184,10 +188,10 @@ function M.spawn(opts)
             map('i', c.mappings.select_float, task_action(get_current, act()))
             map('n', c.mappings.select_float, task_action(get_current, act()))
 
-            map('i', c.mappings.spawn_all, task_action(get_all, act(), spawn_info))
-            map('n', c.mappings.spawn_all, task_action(get_all, act(), spawn_info))
-            map('i', c.mappings.spawn_selected, task_action(get_selected, act(), spawn_info))
-            map('n', c.mappings.spawn_selected, task_action(get_selected, act(), spawn_info))
+            map('i', c.mappings.spawn_all, task_action(get_all, act(), info))
+            map('n', c.mappings.spawn_all, task_action(get_all, act(), info))
+            map('i', c.mappings.spawn_selected, task_action(get_selected, act(), info))
+            map('n', c.mappings.spawn_selected, task_action(get_selected, act(), info))
 
             return true
         end,
@@ -196,6 +200,9 @@ end
 
 function M.select(opts)
     opts = opts or {}
+
+    local c = config.telescope.select
+
     pickers.new(opts, {
         prompt_title = "Select tasks",
         finder = finders.new_table {
@@ -205,21 +212,34 @@ function M.select(opts)
         sorter = conf.generic_sorter(opts),
         previewer = terminal_previewer(opts),
         attach_mappings = function(buf, map)
-            local attach = function(telescope_act, fn)
-                actions[telescope_act]:replace(function()
-                    local entry = action_state.get_selected_entry()
-                    if not entry then
-                        utils.warn('Nothing currently selected')
-                        return
+            local act = function(dir)
+                return function(task)
+                    if dir then
+                        task.term:change_direction(dir)
                     end
-                    actions.close(buf)
-                    fn(entry.value)
-                end)
+                    task.term:open()
+                end
+            end
+            local info = multi_task_info('Spawned')
+
+            local replace = {
+                select_default = act(),
+                select_horizontal = act('horizontal'),
+                select_vertical = act('vertical'),
+                select_tab = act('tab'),
+            }
+            for replaced, replacement in pairs(replace) do
+                actions[replaced]:replace(task_action(get_current, replacement))
             end
 
-            attach('select_default', function(task)
-                task.term:open()
-            end)
+            map('i', c.mappings.select_float, task_action(get_current, act()))
+            map('n', c.mappings.select_float, task_action(get_current, act()))
+
+            -- TODO: better handling of windows layout, maybe open all in new tab and arrange windows there
+            map('i', c.mappings.open_all, task_action(get_all, act(), info))
+            map('n', c.mappings.open_all, task_action(get_all, act(), info))
+            map('i', c.mappings.open_selected, task_action(get_selected, act(), info))
+            map('n', c.mappings.open_selected, task_action(get_selected, act(), info))
 
             return true
         end,

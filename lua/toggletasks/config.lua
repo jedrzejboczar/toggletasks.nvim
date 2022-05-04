@@ -32,6 +32,13 @@ local function defaults()
                     spawn_selected = '<M-a>',
                 },
             },
+            select = {
+                mappings = {
+                    select_float = '<C-f>',
+                    open_all = '<C-a>',
+                    open_selected = '<M-a>',
+                },
+            },
         },
     }
 end
