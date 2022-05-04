@@ -11,6 +11,25 @@ local previewers = require('telescope.previewers')
 local Task = require('toggletasks.task')
 local discovery = require('toggletasks.discovery')
 local utils = require('toggletasks.utils')
+local config = require('toggletasks.config')
+
+-- Preview
+
+local function task_display(task)
+    local tags = vim.tbl_map(function(tag)
+        return '#' .. tag
+    end, task.config.tags)
+    return task.config.name .. ' | ' .. table.concat(tags, ' ')
+end
+
+local function make_task_entry(task)
+    local display = task_display(task)
+    return {
+        value = task,
+        display = display,
+        ordinal = display,
+    }
+end
 
 local function task_previewer(opts)
     return previewers.new_buffer_previewer {
@@ -65,24 +84,55 @@ local function terminal_previewer(opts)
     }
 end
 
-local function task_display(task)
-    local tags = vim.tbl_map(function(tag)
-        return '#' .. tag
-    end, task.config.tags)
-    return task.config.name .. ' | ' .. table.concat(tags, ' ')
+-- Actions
+
+local function get_all(buf)
+    local tasks = {}
+    local picker = action_state.get_current_picker(buf)
+    for entry in picker.manager:iter() do
+        table.insert(tasks, entry.value)
+    end
+    return tasks
 end
 
-local function make_task_entry(task)
-    local display = task_display(task)
-    return {
-        value = task,
-        display = display,
-        ordinal = display,
-    }
+local function get_selected(buf)
+    local tasks = {}
+    local picker = action_state.get_current_picker(buf)
+    for _, entry in ipairs(picker:get_multi_selection()) do
+        table.insert(tasks, entry.value)
+    end
+    return tasks
 end
+
+local function get_current(buf)
+    return { action_state.get_selected_entry().value }
+end
+
+local function task_action(getter, handler, post)
+    return function(buf)
+        local tasks = getter(buf)
+        if #tasks == 0 then
+            utils.warn('Nothing currently selected')
+            return
+        end
+
+        actions.close(buf)
+
+        for _, task in ipairs(tasks) do
+            handler(task)
+        end
+        if post then
+            post(tasks)
+        end
+    end
+end
+
+-- Pickers
 
 function M.spawn(opts)
     opts = opts or {}
+    -- Make sure to later use the window from which the picker was started
+    opts.win = opts.win or vim.api.nvim_get_current_win()
     pickers.new(opts, {
         prompt_title = "Spawn tasks",
         finder = finders.new_table {
@@ -92,21 +142,42 @@ function M.spawn(opts)
         sorter = conf.generic_sorter(opts),
         previewer = task_previewer(opts),
         attach_mappings = function(buf, map)
-            local attach = function(telescope_act, fn)
-                actions[telescope_act]:replace(function()
-                    local entry = action_state.get_selected_entry()
-                    if not entry then
-                        utils.warn('Nothing currently selected')
-                        return
+            local act = function(opts)
+                opts = opts or {}
+                return function(task)
+                    task:spawn(opts.win)
+                    if opts.dir then
+                        task.term:change_direction(opts.dir)
                     end
-                    actions.close(buf)
-                    fn(entry.value)
-                end)
+                    if opts.open then
+                        task.term:open()
+                    end
+                end
+            end
+            local spawn_info = function(tasks)
+                utils.info('Spawned %d tasks', #tasks)
             end
 
-            attach('select_default', function(task)
-                task:spawn(opts.win)
-            end)
+            local c = config.telescope.spawn
+            local open_single = opts.open_single ~= nil and opts.open_single or c.open_single
+
+            local replace = {
+                select_default = act { open = open_single },
+                select_horizontal = act { open = open_single, dir = 'horizontal' },
+                select_vertical = act { open = open_single, dir = 'vertical' },
+                select_tab = act { open = open_single, dir = 'tab' },
+            }
+            for replaced, replacement in pairs(replace) do
+                actions[replaced]:replace(task_action(get_current, replacement))
+            end
+
+            map('i', c.mappings.select_float, task_action(get_current, act()))
+            map('n', c.mappings.select_float, task_action(get_current, act()))
+
+            map('i', c.mappings.spawn_all, task_action(get_all, act(), spawn_info))
+            map('n', c.mappings.spawn_all, task_action(get_all, act(), spawn_info))
+            map('i', c.mappings.spawn_selected, task_action(get_selected, act(), spawn_info))
+            map('n', c.mappings.spawn_selected, task_action(get_selected, act(), spawn_info))
 
             return true
         end,

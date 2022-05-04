@@ -22,6 +22,16 @@ local function defaults()
         lsp_priorities = {
             ['null-ls'] = -10,
         },
+        telescope = {
+            spawn = {
+                open_single = true,
+                mappings = {
+                    select_float = '<C-f>',
+                    spawn_all = '<C-a>',
+                    spawn_selected = '<M-a>',
+                },
+            },
+        },
     }
 end
 
