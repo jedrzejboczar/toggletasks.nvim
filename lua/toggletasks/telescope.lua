@@ -16,16 +16,52 @@ local function task_previewer(opts)
     return previewers.new_buffer_previewer {
         title = 'Task',
         get_buffer_by_name = function(_, entry)
-            return entry.value.config.name
+            return entry.value:id()
         end,
         define_preview = function(self, entry, status)
-            if self.state.bufname ~= entry.value.config.name then
+            if self.state.bufname ~= entry.value:id() then
                 -- Cheap way to get decent display as Lua table
                 local s = vim.inspect(entry.value.config)
                 vim.api.nvim_buf_set_option(self.state.bufnr, 'filetype', 'lua')
                 vim.api.nvim_buf_set_lines(self.state.bufnr, 0, -1, false, utils.split_lines(s))
             end
         end
+    }
+end
+
+local function terminal_previewer(opts)
+    return previewers.new_buffer_previewer {
+        title = 'Session Preview',
+        get_buffer_by_name = function(_, entry)
+            return entry.value:id()
+        end,
+        define_preview = function(self, entry, status)
+            -- Preview by copying all lines from the terminal buffer Cache by buffer,
+            -- but because terminal buffers may get new output we want to reset the
+            -- content with some interval. This will however not update until new entry
+            -- is selected in telescope, so it is far from ideal. It also won't get
+            -- all the terminal highlighting.
+            local delay_ms = 100
+
+            local id = entry.value:id()
+            local is_cached = self.state.bufname ~= id
+            self.state.update_times = self.state.update_times or {}
+            local last_time = self.state.update_times[id]
+
+            if is_cached or (last_time and vim.loop.now() > last_time + delay_ms) then
+                local buf = vim.F.npcall(function()
+                   return entry.value.term.bufnr
+                end)
+
+                local lines = {'<ERROR: buffer not available>'}
+                if buf and vim.api.nvim_buf_is_valid(buf) then
+                    lines = vim.api.nvim_buf_get_lines(buf, 0, -1, false)
+                end
+
+                vim.api.nvim_buf_set_lines(self.state.bufnr, 0, -1, false, lines)
+                self.state.update_times[id] = vim.loop.now()
+            end
+        end,
     }
 end
 
@@ -82,11 +118,11 @@ function M.select(opts)
     pickers.new(opts, {
         prompt_title = "Select tasks",
         finder = finders.new_table {
-            results = vim.tbl_values(Task.get_all()),
+            results = Task.get_all(),
             entry_maker = make_task_entry,
         },
         sorter = conf.generic_sorter(opts),
-        -- previewer = conf.grep_previewer(opts),
+        previewer = terminal_previewer(opts),
         attach_mappings = function(buf, map)
             local attach = function(telescope_act, fn)
                 actions[telescope_act]:replace(function()
