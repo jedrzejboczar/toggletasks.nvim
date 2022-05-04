@@ -8,7 +8,7 @@ local pickers = require('telescope.pickers')
 local previewers = require('telescope.previewers')
 
 local Task = require('toggletasks.task')
-local discover = require('toggletasks.discovery').discover
+local discovery = require('toggletasks.discovery')
 local utils = require('toggletasks.utils')
 
 local function task_previewer(opts)
@@ -49,7 +49,7 @@ function M.spawn(opts)
     pickers.new(opts, {
         prompt_title = "Tasks",
         finder = finders.new_table {
-            results = discover(opts),
+            results = discovery.tasks(opts),
             entry_maker = make_task_entry,
         },
         sorter = conf.generic_sorter(opts),
