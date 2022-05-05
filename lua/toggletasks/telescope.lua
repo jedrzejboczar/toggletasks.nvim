@@ -38,9 +38,14 @@ local function task_previewer(opts)
             return entry.value:id()
         end,
         define_preview = function(self, entry, status)
+            local task = entry.value
             if self.state.bufname ~= entry.value:id() then
+                -- Add some metadata
+                local data = vim.tbl_extend('force', task.config, {
+                    ['$config'] = task.config_file,
+                })
                 -- Cheap way to get decent display as Lua table
-                local s = vim.inspect(entry.value.config)
+                local s = vim.inspect(data)
                 vim.api.nvim_buf_set_option(self.state.bufnr, 'filetype', 'lua')
                 vim.api.nvim_buf_set_lines(self.state.bufnr, 0, -1, false, utils.split_lines(s))
             end
