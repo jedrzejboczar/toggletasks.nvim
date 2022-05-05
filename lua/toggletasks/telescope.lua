@@ -42,7 +42,7 @@ local function task_previewer(opts)
             if self.state.bufname ~= entry.value:id() then
                 -- Add some metadata
                 local data = vim.tbl_extend('force', task.config, {
-                    ['$config'] = task.config_file,
+                    ['$config'] = utils.short_path(task.config_file),
                 })
                 -- Cheap way to get decent display as Lua table
                 local s = vim.inspect(data)

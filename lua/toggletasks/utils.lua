@@ -1,5 +1,6 @@
 local M = {}
 
+local Path = require('plenary.path')
 local config = require('toggletasks.config')
 
 function M.debug(...)
@@ -87,6 +88,20 @@ end
 
 function M.split_lines(s, trimempty)
     return vim.split(s, '\n', { plain = true, trimempty = trimempty })
+end
+
+function M.short_path(path)
+    path = Path:new(path)
+    local cwd = Path:new(vim.fn.getcwd()):absolute()
+    if config.short_paths and vim.startswith(path:absolute(), cwd) then
+        local rel = path:make_relative(cwd)
+        if rel:sub(1, 1) ~= '.' and rel:sub(1, 1) ~= '/' then
+            rel = './' .. rel
+        end
+        return rel
+    else
+        return path:absolute()
+    end
 end
 
 return M

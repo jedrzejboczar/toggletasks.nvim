@@ -28,7 +28,7 @@ function M.config_dirs(opts)
     end
 
     dirs = utils.unique(dirs)
-    utils.debug('discovery.config_dirs: %s', vim.inspect(dirs))
+    utils.debug('discovery.config_dirs: %s', vim.inspect(vim.tbl_map(utils.short_path, dirs)))
 
     return dirs
 end
@@ -60,7 +60,7 @@ function M.tasks(opts)
     local tasks = {}
     for _, file in ipairs(files) do
         local found = Task:from_config(file) or {}
-        utils.debug('discover: found %d tasks in file: %s', #found, file)
+        utils.debug('discover: found %d tasks in file: %s', #found, utils.short_path(file))
         vim.list_extend(tasks, found)
     end
     utils.debug('discover: found %d tasks in total', #tasks)

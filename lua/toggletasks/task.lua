@@ -55,7 +55,7 @@ local function load_config(file)
         return
     end
 
-    utils.debug('load_config: loaded: %s', file:absolute())
+    utils.debug('load_config: loaded: %s', utils.short_path(file))
 
     return config
 end
