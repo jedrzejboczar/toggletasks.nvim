@@ -13,6 +13,8 @@ Neovim project-local task management: JSON + [toggleterm.nvim](https://github.co
 * Filter tasks based on #tags defined in config files
 * Use [telescope](https://github.com/nvim-telescope/telescope.nvim/) to view/open/kill tasks
 
+![usage video example](https://media.giphy.com/media/JrTEO0q8lkLVNLrehQ/giphy.gif)
+
 ## Overview
 
 The main idea behind this plugin is to be able to easily define build/setup commands for different
