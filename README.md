@@ -1,3 +1,5 @@
+[![Lint](https://github.com/jedrzejboczar/toggletasks.nvim/actions/workflows/lint.yml/badge.svg)](https://github.com/jedrzejboczar/toggletasks.nvim/actions/workflows/lint.yml)
+
 # toggletasks.nvim
 
 Neovim project-local task management: JSON + [toggleterm.nvim](https://github.com/akinsho/toggleterm.nvim) + [telescope.nvim](https://github.com/nvim-telescope/telescope.nvim/).
