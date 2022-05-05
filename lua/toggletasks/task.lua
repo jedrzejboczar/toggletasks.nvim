@@ -160,15 +160,6 @@ function Task:expand_cmd(win)
     return self:_expand(self.config.cmd, win, { env = false })
 end
 
--- Kill a running task
-function Task:shutdown()
-    if self.term then
-        self.term:shutdown()
-        terminal.delete(self.term.id)
-        self.term = nil
-    end
-end
-
 -- Assume that tasks are uniquely identified by config_file + name
 function Task:id()
     return (self.config_file or '') .. '#' .. self.config.name
@@ -191,7 +182,6 @@ function Task.get(id)
             -- Clean up our list of running tasks
             utils.debug('Task.get: clean up: %s', id)
             task:shutdown()
-            running[id] = nil
         end
     end
 end
@@ -215,13 +205,22 @@ function Task.delete(id)
     if task then
         utils.debug('Task.delete: %s', id)
         task:shutdown()
-        running[id] = nil
     end
 end
 
 -- Add a task to the list
 function Task.add(task)
     running[task:id()] = task
+end
+
+-- Kill a running task
+function Task:shutdown()
+    if self.term then
+        self.term:shutdown()
+        terminal.delete(self.term.id)
+        self.term = nil
+        running[self:id()] = nil
+    end
 end
 
 -- Spawn a task in a terminal

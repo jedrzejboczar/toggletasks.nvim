@@ -207,7 +207,6 @@ function M.spawn(opts)
                     end
                 end
             end
-            local info = multi_task_info('Spawned')
 
             local replace = {
                 select_default = act { open = open_single },
@@ -219,7 +218,8 @@ function M.spawn(opts)
                 actions[replaced]:replace(task_action(get_current, replacement))
             end
 
-            try_map(map, c.mappings.select_float, task_action(get_current, act()))
+            local info = multi_task_info('Spawned')
+            try_map(map, c.mappings.select_float, task_action(get_current, act { dir = 'float' }))
             try_map(map, c.mappings.spawn_smart, task_action(get_smart, act(), info))
             try_map(map, c.mappings.spawn_all, task_action(get_all, act(), info))
             try_map(map, c.mappings.spawn_selected, task_action(get_selected, act(), info))
@@ -243,32 +243,42 @@ function M.select(opts)
         sorter = conf.generic_sorter(opts),
         previewer = terminal_previewer(opts),
         attach_mappings = function(buf, map)
-            local act = function(dir)
+            local act = function(act_opts)
+                act_opts = act_opts or {}
                 return function(task)
-                    if dir then
-                        task.term:change_direction(dir)
+                    if act_opts.typ == 'kill' then
+                        task:shutdown()
+                    else
+                        if act_opts.dir then
+                            task.term:change_direction(dir)
+                        end
+                        task.term:open()
                     end
-                    task.term:open()
                 end
             end
-            local info = multi_task_info('Spawned')
 
             local replace = {
                 select_default = act(),
-                select_horizontal = act('horizontal'),
-                select_vertical = act('vertical'),
-                select_tab = act('tab'),
+                select_horizontal = act { dir = 'horizontal' },
+                select_vertical = act { dir = 'vertical' },
+                select_tab = act { dir = 'tab' },
             }
             for replaced, replacement in pairs(replace) do
                 actions[replaced]:replace(task_action(get_current, replacement))
             end
 
-            try_map(map, c.mappings.select_float, task_action(get_current, act()))
+            try_map(map, c.mappings.select_float, task_action(get_current, act { dir = 'float' }))
 
             -- TODO: better handling of windows layout, maybe open all in new tab and arrange windows there
+            local info = multi_task_info('Opened')
             try_map(map, c.mappings.open_smart, task_action(get_smart, act(), info))
             try_map(map, c.mappings.open_all, task_action(get_all, act(), info))
             try_map(map, c.mappings.open_selected, task_action(get_selected, act(), info))
+
+            info = multi_task_info('Killed')
+            try_map(map, c.mappings.kill_smart, task_action(get_smart, act { typ = 'kill' }, info))
+            try_map(map, c.mappings.kill_all, task_action(get_all, act { typ = 'kill' }, info))
+            try_map(map, c.mappings.kill_selected, task_action(get_selected, act { typ = 'kill' }, info))
 
             return true
         end,
