@@ -222,7 +222,8 @@ To use this plugin use the included telescope pickers:
 These commands can be mapped to keybindings, e.g.
 
 ```lua
-vim.keymap.set('n', '<space>ts', require('telescope').extensions.toggletasks.spawn, { desc = 'toggletasks: spawn' })
+vim.keymap.set('n', '<space>ts', require('telescope').extensions.toggletasks.spawn,
+    { desc = 'toggletasks: spawn' })
 ```
 When selecting tasks to be spawned, one can just type `#tagname` in the prompt to filter based on
 tag. This is currently using the default string based matching but should work correctly in most cases.
@@ -236,3 +237,4 @@ selected tasks.
     tasks with `possession` tag - no changes required in this plugin
 - [ ] Option to define some tasks from Lua in setup
 - [ ] Task "templates": one task could inherit options from another ("extends")
+- [ ] YAML support using [lyaml](https://github.com/gvvaughan/lyaml) from luarocks via packer
