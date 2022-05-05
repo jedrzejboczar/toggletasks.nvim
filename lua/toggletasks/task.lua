@@ -79,7 +79,8 @@ function Task:from_config(config_file)
     return tasks
 end
 
--- Expand environmental variables and special task-related variables in a string
+-- Expand environmental variables and special task-related variables in a string.
+-- Requires explicit syntax with curly braces, e.g. "${VAR}".
 function Task:_expand(str, win)
     win = win or vim.api.nvim_get_current_win()
     local buf = vim.api.nvim_win_get_buf(win)
@@ -105,12 +106,12 @@ function Task:_expand(str, win)
 
     -- Expand special variables
     for var, value in pairs(vars) do
-        str = str:gsub('$' .. var, value)
+        str = str:gsub('${' .. var .. '}', value)
     end
 
     -- Expand environmental variables
     for var, value in pairs(vim.fn.environ()) do
-        str = str:gsub('$' .. var, value)
+        str = str:gsub('${' .. var .. '}', value)
     end
 
     return str
