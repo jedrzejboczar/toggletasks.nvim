@@ -220,13 +220,16 @@ function Task:spawn(win)
     -- Ensure this task is not running
     Task.delete(self:id())
 
-    self.term = Terminal:new {
+    local opts = {
         cmd = self:expand_cmd(win),
         dir = self:expand_cwd(win),
         close_on_exit = self.config.close_on_exit,
         env = self:expand_env(win),
         clear_env = self.config.clear_env,
     }
+    utils.debug('Task:spawn: with opts: %s', vim.inspect(opts))
+
+    self.term = Terminal:new(opts)
     -- Mark the terminal as "ours"
     self.term._task_id = self:id()
 
