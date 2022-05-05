@@ -61,25 +61,25 @@ local function load_config(file)
         return
     end
 
-    local config = vim.F.npcall(vim.json.decode, content)
-    if not config then
+    local conf = vim.F.npcall(vim.json.decode, content)
+    if not conf then
         utils.warn('Invalid tasks config format: %s', path:absolute())
         return
     end
 
     utils.debug('load_config: loaded: %s', utils.short_path(file))
 
-    return config
+    return conf
 end
 
 -- Extract tasks from a JSON config file
 function Task:from_config(config_file)
     config_file = Path:new(config_file)
-    local config = load_config(config_file)
-    if not config then return end
+    local conf = load_config(config_file)
+    if not conf then return end
 
     local tasks = {}
-    for i, task_conf in ipairs(config.tasks or {}) do
+    for i, task_conf in ipairs(conf.tasks or {}) do
         utils.debug('from_config: parsing %d: %s', i, vim.inspect(task_conf))
         local ok, task_or_err = pcall(Task.new, Task, task_conf, config_file:absolute())
         if ok then

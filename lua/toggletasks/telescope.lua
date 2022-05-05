@@ -3,7 +3,6 @@ local M = {}
 local action_state = require('telescope.actions.state')
 local actions = require('telescope.actions')
 local conf = require('telescope.config').values
-local entry_display = require('telescope.pickers.entry_display')
 local finders = require('telescope.finders')
 local make_entry = require('telescope.make_entry')
 local pickers = require('telescope.pickers')
@@ -184,14 +183,14 @@ function M.spawn(opts)
         sorter = conf.generic_sorter(opts),
         previewer = task_previewer(opts),
         attach_mappings = function(buf, map)
-            local act = function(opts)
-                opts = opts or {}
+            local act = function(act_opts)
+                act_opts = act_opts or {}
                 return function(task)
-                    task:spawn(opts.win)
-                    if opts.dir then
-                        task.term:change_direction(opts.dir)
+                    task:spawn(act_opts.win)
+                    if act_opts.dir then
+                        task.term:change_direction(act_opts.dir)
                     end
-                    if opts.open then
+                    if act_opts.open then
                         task.term:open()
                     end
                 end
