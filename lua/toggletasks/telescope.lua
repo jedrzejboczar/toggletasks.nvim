@@ -250,7 +250,7 @@ function M.select(opts)
                         task:shutdown()
                     else
                         if act_opts.dir then
-                            task.term:change_direction(dir)
+                            task.term:change_direction(act_opts.dir)
                         end
                         task.term:open()
                     end
