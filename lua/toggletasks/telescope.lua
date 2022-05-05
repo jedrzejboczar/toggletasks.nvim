@@ -126,6 +126,11 @@ local function get_selected(buf)
     return tasks
 end
 
+local function get_smart(buf)
+    local selected = get_selected(buf)
+    return #selected > 0 and selected or get_all(buf)
+end
+
 local function get_current(buf)
     return { action_state.get_selected_entry().value }
 end
@@ -152,6 +157,13 @@ end
 local function multi_task_info(action_info)
     return function(tasks)
         utils.info('%s %d tasks', action_info, #tasks)
+    end
+end
+
+local try_map = function(map_fn, lhs, rhs)
+    if lhs then
+        map_fn('i', lhs, rhs)
+        map_fn('n', lhs, rhs)
     end
 end
 
@@ -207,13 +219,10 @@ function M.spawn(opts)
                 actions[replaced]:replace(task_action(get_current, replacement))
             end
 
-            map('i', c.mappings.select_float, task_action(get_current, act()))
-            map('n', c.mappings.select_float, task_action(get_current, act()))
-
-            map('i', c.mappings.spawn_all, task_action(get_all, act(), info))
-            map('n', c.mappings.spawn_all, task_action(get_all, act(), info))
-            map('i', c.mappings.spawn_selected, task_action(get_selected, act(), info))
-            map('n', c.mappings.spawn_selected, task_action(get_selected, act(), info))
+            try_map(map, c.mappings.select_float, task_action(get_current, act()))
+            try_map(map, c.mappings.spawn_smart, task_action(get_smart, act(), info))
+            try_map(map, c.mappings.spawn_all, task_action(get_all, act(), info))
+            try_map(map, c.mappings.spawn_selected, task_action(get_selected, act(), info))
 
             return true
         end,
@@ -254,14 +263,12 @@ function M.select(opts)
                 actions[replaced]:replace(task_action(get_current, replacement))
             end
 
-            map('i', c.mappings.select_float, task_action(get_current, act()))
-            map('n', c.mappings.select_float, task_action(get_current, act()))
+            try_map(map, c.mappings.select_float, task_action(get_current, act()))
 
             -- TODO: better handling of windows layout, maybe open all in new tab and arrange windows there
-            map('i', c.mappings.open_all, task_action(get_all, act(), info))
-            map('n', c.mappings.open_all, task_action(get_all, act(), info))
-            map('i', c.mappings.open_selected, task_action(get_selected, act(), info))
-            map('n', c.mappings.open_selected, task_action(get_selected, act(), info))
+            try_map(map, c.mappings.open_smart, task_action(get_smart, act(), info))
+            try_map(map, c.mappings.open_all, task_action(get_all, act(), info))
+            try_map(map, c.mappings.open_selected, task_action(get_selected, act(), info))
 
             return true
         end,

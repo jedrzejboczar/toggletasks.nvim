@@ -33,15 +33,17 @@ local function defaults()
                 show_running = false,
                 mappings = {
                     select_float = '<C-f>',
-                    spawn_all = '<C-a>',
-                    spawn_selected = '<M-a>',
+                    spawn_smart = '<C-a>',
+                    spawn_all = '<M-a>',
+                    spawn_selected = nil,
                 },
             },
             select = {
                 mappings = {
                     select_float = '<C-f>',
-                    open_all = '<C-a>',
-                    open_selected = '<M-a>',
+                    open_smart = '<C-a>',
+                    open_all = '<M-a>',
+                    open_selected = nil,
                 },
             },
         },
