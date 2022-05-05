@@ -81,6 +81,10 @@ end
 
 -- Expand environmental variables and special task-related variables in a string
 function Task:_expand(str, win)
+    win = win or vim.api.nvim_get_current_win()
+    local buf = vim.api.nvim_win_get_buf(win)
+    local filename = vim.api.nvim_buf_get_name(buf)
+
     local dirs = utils.get_work_dirs(win)
 
     local vars = {
@@ -92,6 +96,11 @@ function Task:_expand(str, win)
         WIN_CWD = dirs.win,
         TAB_CWD = dirs.tab,
         GLOBAL_CWD = dirs.global,
+        -- Expand current file
+        FILE = vim.fn.fnamemodify(filename, ':p'),
+        FILE_EXT = vim.fn.fnamemodify(filename, ':e'),
+        FILE_TAIL = vim.fn.fnamemodify(filename, ':p:t'),
+        FILE_HEAD = vim.fn.fnamemodify(filename, ':p:h'),
     }
 
     -- Expand special variables
@@ -99,14 +108,17 @@ function Task:_expand(str, win)
         str = str:gsub('$' .. var, value)
     end
 
-    -- Expand environmental variables and "~"
-    str = vim.fn.expand(str)
+    -- Expand environmental variables
+    for var, value in pairs(vim.fn.environ()) do
+        str = str:gsub('$' .. var, value)
+    end
 
     return str
 end
 
 function Task:expand_cwd(win)
-    return self.config.cwd and self:_expand(self.config.cwd, win)
+    -- Use fnamemodify to make sure ~/ is expanded
+    return self.config.cwd and vim.fn.fnamemodify(self:_expand(self.config.cwd, win), ':p')
 end
 
 function Task:expand_env(win)
