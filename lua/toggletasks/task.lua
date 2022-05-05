@@ -79,8 +79,10 @@ function Task:from_config(config_file)
     return tasks
 end
 
-function Task:resolve_cwd(win)
+-- Expand environmental variables and special task-related variables in a string
+function Task:_expand(str, win)
     local dirs = utils.get_work_dirs(win)
+
     local vars = {
         -- Expands to directory of config file if exists
         CONFIG_DIR = self.config_file and Path:new(self.config_file):parent():absolute(),
@@ -93,15 +95,27 @@ function Task:resolve_cwd(win)
     }
 
     -- Expand special variables
-    local cwd = self.config.cwd or ''
     for var, value in pairs(vars) do
-        cwd = cwd:gsub('$' .. var, value)
+        str = str:gsub('$' .. var, value)
     end
 
     -- Expand environmental variables and "~"
-    cwd = vim.fn.expand(cwd)
+    str = vim.fn.expand(str)
 
-    return cwd
+    return str
+end
+
+function Task:expand_cwd(win)
+    return self.config.cwd and self:_expand(self.config.cwd, win)
+end
+
+function Task:expand_env(win)
+    if not self.config.env then return end
+    local env = {}
+    for key, val in pairs(self.config.env) do
+        env[key] = self:_expand(val, win)
+    end
+    return env
 end
 
 -- Kill a running task
@@ -175,9 +189,9 @@ function Task:spawn(win)
 
     self.term = Terminal:new {
         cmd = self.config.cmd,
-        dir = self:resolve_cwd(win),
+        dir = self:expand_cwd(win),
         close_on_exit = false,
-        env = self.config.env,
+        env = self:expand_env(win),
         clear_env = self.config.clear_env,
     }
     -- Mark the terminal as "ours"
