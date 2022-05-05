@@ -21,6 +21,11 @@ function Task:new(config, config_file)
         clear_env = { config.clear_env, { 'boolean', 'nil' } }, -- passed to jobstart()
         config_file = { config_file, { 'string', 'nil' } }, -- path to config file (if loaded from file)
     }
+    -- Prevent empty dict which will cause errors when passed to jobstart
+    local env = config.env
+    if env and #vim.tbl_keys(env) == 0 then
+        env = nil
+    end
     return setmetatable({
         config = {
             name = config.name,
@@ -28,7 +33,7 @@ function Task:new(config, config_file)
             cmd = config.cmd,
             cwd = config.cwd,
             tags = utils.as_table(config.tags or {}),
-            env = config.env,
+            env = env,
             clear_env = config.clear_env,
         },
         config_file = config_file,
