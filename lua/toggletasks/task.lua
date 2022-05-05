@@ -14,7 +14,7 @@ function Task:new(config, config_file)
         name = { config.name, 'string' }, -- descriptive name for the task
         -- TODO: remove id
         id = { config.id, { 'string', 'nil' } }, -- used to uniquely identify task, if nil then name is used
-        cmd = { config.cmd, { 'string', 'table' } }, -- command to run
+        cmd = { config.cmd, { 'string' --[[, 'table' ]] } }, -- command to run
         cwd = { config.cwd, { 'string', 'nil' } }, -- task working directory
         tags = { config.tags, { 'string', 'table', 'nil' } }, -- tags used to filter tasks
         env = { config.env, { 'table', 'nil' } }, -- environmental variables passed to jobstart()
