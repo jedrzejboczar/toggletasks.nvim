@@ -19,6 +19,7 @@ function Task:new(config, config_file)
         tags = { config.tags, { 'string', 'table', 'nil' } }, -- tags used to filter tasks
         env = { config.env, { 'table', 'nil' } }, -- environmental variables passed to jobstart()
         clear_env = { config.clear_env, { 'boolean', 'nil' } }, -- passed to jobstart()
+        close_on_exit = { config.close_on_exit, { 'boolean', 'nil' } }, -- Terminal.close_on_exit
         config_file = { config_file, { 'string', 'nil' } }, -- path to config file (if loaded from file)
     }
     -- Prevent empty dict which will cause errors when passed to jobstart
@@ -35,6 +36,7 @@ function Task:new(config, config_file)
             tags = utils.as_table(config.tags or {}),
             env = env,
             clear_env = config.clear_env,
+            close_on_exit = config.close_on_exit or false,
         },
         config_file = config_file,
         term = nil,
@@ -221,7 +223,7 @@ function Task:spawn(win)
     self.term = Terminal:new {
         cmd = self:expand_cmd(win),
         dir = self:expand_cwd(win),
-        close_on_exit = false,
+        close_on_exit = self.config.close_on_exit,
         env = self:expand_env(win),
         clear_env = self.config.clear_env,
     }
