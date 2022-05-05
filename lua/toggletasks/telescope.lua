@@ -3,6 +3,7 @@ local M = {}
 local action_state = require('telescope.actions.state')
 local actions = require('telescope.actions')
 local conf = require('telescope.config').values
+local entry_display = require('telescope.pickers.entry_display')
 local finders = require('telescope.finders')
 local make_entry = require('telescope.make_entry')
 local pickers = require('telescope.pickers')
@@ -15,19 +16,36 @@ local config = require('toggletasks.config')
 
 -- Preview
 
-local function task_display(task)
+local function make_task_display(entry)
+    local items = { entry.value.config.name, ' ' }
+    local highlights = {}
+
+    local start = #table.concat(items, '')
+    for _, tag in ipairs(entry.value.config.tags) do
+        vim.list_extend(items, { '#', tag, ' ' })
+        vim.list_extend(highlights, {
+            { { start, start + 1 }, 'TelescopeResultsOperator' },
+            { { start + 1, start + 1 + #tag }, 'TelescopeResultsIdentifier' },
+        })
+        start = start + 1 + #tag + 1
+    end
+
+    return table.concat(items), highlights
+end
+
+local function task_ordinal(task)
     local tags = vim.tbl_map(function(tag)
         return '#' .. tag
     end, task.config.tags)
-    return task.config.name .. ' | ' .. table.concat(tags, ' ')
+
+    return table.concat(tags, ' ') .. ' ' .. task.config.name
 end
 
 local function make_task_entry(task)
-    local display = task_display(task)
     return {
         value = task,
-        display = display,
-        ordinal = display,
+        display = make_task_display,
+        ordinal = task_ordinal(task),
     }
 end
 
