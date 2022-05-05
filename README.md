@@ -1,6 +1,6 @@
 # toggletasks.nvim
 
-Neovim project-local task management: JSON + toggleterm.nvim + telescope.nvim.
+Neovim project-local task management: JSON + [toggleterm.nvim](https://github.com/akinsho/toggleterm.nvim) + [telescope.nvim](https://github.com/nvim-telescope/telescope.nvim/).
 
 ## Features
 
@@ -34,12 +34,12 @@ things from scratch, i.e.
 
 Other differences:
 
-* yabs.nvim (currently, see [blog post](https://pianocomposer321.github.io/2022/05/03/why-im-rewriting-yabs.html))
+* `yabs.nvim` (currently, see [blog post](https://pianocomposer321.github.io/2022/05/03/why-im-rewriting-yabs.html))
   sources arbitrary Lua files; toggletasks uses only JSON which is much safer, though less powerfull
-* yabs.nvim has the concept of different outputs/runners; toggletasks always uses toggleterm.nvim
-* projectlaunch.nvim has a dedicated UI for managing tasks and running groups of tasks; toggletasks uses
+* `yabs.nvim` has the concept of different outputs/runners; toggletasks always uses toggleterm.nvim
+* `projectlaunch.nvim` has a dedicated UI for managing tasks and running groups of tasks; toggletasks uses
   telescope to achieve similar results, allowing for multi-selection when spawning/selecting tasks
-* projectlaunch.nvim has builtin runners for things like package.json/Makefile; this is not supported,
+* `projectlaunch.nvim` has builtin runners for things like package.json/Makefile; this is not supported,
   but maybe something to consider in the future
 
 ## Installation
@@ -132,16 +132,16 @@ Available fields:
 
 | Field | Type | Description |
 | ----- | ---- | ----------- |
-| name | string | descriptive name for the task; pair (name, config_file) is used to uniquely identify a task (to kill existing if re-running or to filter out already running tasks in picker) |
-| id | string? | Optional ID to use instead of the default pair (name, config_file) |
-| cmd | string | Command to run |
-| cwd | string? | Task working directory |
-| tags | table<string>? | Tags used to group and filter tasks |
-| env | table<string, string>? | Additional environmental variables passed to task |
-| clear_env | boolean? | If set to true, only environmental variables from `env` will be passed to task |
-| close_on_exit | boolean? | Auto-close terminal when task job exists ([see toggleterm](https://github.com/akinsho/toggleterm.nvim#custom-terminals)) |
-| hidden | boolean? | Don't include this task in toggleterm tasks list ([see toggleterm](https://github.com/akinsho/toggleterm.nvim#custom-terminals)) |
-| count | number? | Use given terminal number ([see toggleterm](https://github.com/akinsho/toggleterm.nvim#custom-terminals)) |
+| name | `string` | descriptive name for the task; pair (name, config_file) is used to uniquely identify a task (to kill existing if re-running or to filter out already running tasks in picker) |
+| id | `string?` | Optional ID to use instead of the default pair (name, config_file) |
+| cmd | `string` | Command to run |
+| cwd | `string?` | Task working directory |
+| tags | `table<string>?` | Tags used to group and filter tasks |
+| env | `table<string, string>?` | Additional environmental variables passed to task |
+| clear_env | `boolean?` | If set to true, only environmental variables from `env` will be passed to task |
+| close_on_exit | `boolean?` | Auto-close terminal when task job exists ([see toggleterm](https://github.com/akinsho/toggleterm.nvim#custom-terminals)) |
+| hidden | `boolean?` | Don't include this task in toggleterm tasks list ([see toggleterm](https://github.com/akinsho/toggleterm.nvim#custom-terminals)) |
+| count | `number?` | Use given terminal number ([see toggleterm](https://github.com/akinsho/toggleterm.nvim#custom-terminals)) |
 
 Variable expansion is supported using the syntax `${VAR}`.
 Environmental variables will be expanded in fields: `cwd`, `env`.
@@ -230,7 +230,7 @@ selected tasks.
 
 ## TODO
 
-[ ] Integration with [possession.nvim](https://github.com/jedrzejboczar/possession.nvim) by marking
+- [ ] Integration with [possession.nvim](https://github.com/jedrzejboczar/possession.nvim) by marking
     tasks with `possession` tag - no changes required in this plugin
-[ ] Option to define some tasks from Lua in setup
-[ ] Task "templates": one task could inherit options from another ("extends")
+- [ ] Option to define some tasks from Lua in setup
+- [ ] Task "templates": one task could inherit options from another ("extends")
