@@ -2,41 +2,46 @@ local Path = require('plenary.path')
 local terminal = require('toggleterm.terminal')
 local Terminal = require('toggleterm.terminal').Terminal
 local utils = require('toggletasks.utils')
+local config = require('toggletasks.config')
 
 local Task = {}
 Task.__index = Task
 
 -- Create new task from task configuration
---@param config table: table in the same format as in JSON['tasks'][x]
+--@param conf table: table in the same format as in JSON['tasks'][x]
 --@param config_file string?: path to config file, or nil if defined from lua
-function Task:new(config, config_file)
+function Task:new(conf, config_file)
     vim.validate {
-        name = { config.name, 'string' }, -- descriptive name for the task
+        name = { conf.name, 'string' }, -- descriptive name for the task
         -- TODO: remove id
-        id = { config.id, { 'string', 'nil' } }, -- used to uniquely identify task, if nil then name is used
-        cmd = { config.cmd, { 'string' --[[, 'table' ]] } }, -- command to run
-        cwd = { config.cwd, { 'string', 'nil' } }, -- task working directory
-        tags = { config.tags, { 'string', 'table', 'nil' } }, -- tags used to filter tasks
-        env = { config.env, { 'table', 'nil' } }, -- environmental variables passed to jobstart()
-        clear_env = { config.clear_env, { 'boolean', 'nil' } }, -- passed to jobstart()
-        close_on_exit = { config.close_on_exit, { 'boolean', 'nil' } }, -- Terminal.close_on_exit
+        id = { conf.id, { 'string', 'nil' } }, -- used to uniquely identify task, if nil then name is used
+        cmd = { conf.cmd, { 'string' --[[, 'table' ]] } }, -- command to run
+        cwd = { conf.cwd, { 'string', 'nil' } }, -- task working directory
+        tags = { conf.tags, { 'string', 'table', 'nil' } }, -- tags used to filter tasks
+        env = { conf.env, { 'table', 'nil' } }, -- environmental variables passed to jobstart()
+        clear_env = { conf.clear_env, { 'boolean', 'nil' } }, -- passed to jobstart()
+        close_on_exit = { conf.close_on_exit, { 'boolean', 'nil' } }, -- Terminal.close_on_exit
+        hidden = { conf.hidden, { 'boolean', 'nil' } }, -- Terminal.hidden
+        count = { conf.count, { 'number', 'nil' } }, -- Terminal.count
         config_file = { config_file, { 'string', 'nil' } }, -- path to config file (if loaded from file)
     }
     -- Prevent empty dict which will cause errors when passed to jobstart
-    local env = config.env
+    local env = conf.env
     if env and #vim.tbl_keys(env) == 0 then
         env = nil
     end
     return setmetatable({
         config = {
-            name = config.name,
-            id = config.id or config.name,
-            cmd = config.cmd,
-            cwd = config.cwd,
-            tags = utils.as_table(config.tags or {}),
+            name = conf.name,
+            id = conf.id or conf.name,
+            cmd = conf.cmd,
+            cwd = conf.cwd,
+            tags = utils.as_table(conf.tags or {}),
             env = env,
-            clear_env = config.clear_env,
-            close_on_exit = config.close_on_exit or false,
+            clear_env = conf.clear_env,
+            close_on_exit = vim.F.if_nil(conf.close_on_exit, config.defaults.close_on_exit),
+            hidden = vim.F.if_nil(conf.hidden, config.defaults.hidden),
+            count = conf.count,
         },
         config_file = config_file,
         term = nil,
@@ -226,6 +231,8 @@ function Task:spawn(win)
         close_on_exit = self.config.close_on_exit,
         env = self:expand_env(win),
         clear_env = self.config.clear_env,
+        hidden = self.config.hidden,
+        count = self.config.count,
     }
     utils.debug('Task:spawn: with opts: %s', vim.inspect(opts))
 

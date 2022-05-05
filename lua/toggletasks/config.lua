@@ -23,6 +23,10 @@ local function defaults()
         lsp_priorities = {
             ['null-ls'] = -10,
         },
+        defaults = {
+            close_on_exit = false,
+            hidden = true,
+        },
         telescope = {
             spawn = {
                 open_single = true,
