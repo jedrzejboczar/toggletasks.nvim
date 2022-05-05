@@ -15,7 +15,7 @@ function Task:new(conf, config_file)
         name = { conf.name, 'string' }, -- descriptive name for the task
         -- TODO: remove id
         id = { conf.id, { 'string', 'nil' } }, -- used to uniquely identify task, if nil then name is used
-        cmd = { conf.cmd, { 'string' --[[, 'table' ]] } }, -- command to run
+        cmd = { conf.cmd, 'string' }, -- command to run TODO: support tables (requires toggleterm support)
         cwd = { conf.cwd, { 'string', 'nil' } }, -- task working directory
         tags = { conf.tags, { 'string', 'table', 'nil' } }, -- tags used to filter tasks
         env = { conf.env, { 'table', 'nil' } }, -- environmental variables passed to jobstart()
