@@ -90,18 +90,18 @@ function Task:_expand(str, win)
 
     local vars = {
         -- Expands to directory of config file if exists
-        CONFIG_DIR = self.config_file and Path:new(self.config_file):parent():absolute(),
+        config_dir = self.config_file and Path:new(self.config_file):parent():absolute(),
         -- Expands to root directory of LSP client with highest priority
-        LSP_ROOT = dirs.lsp,
+        lsp_root = dirs.lsp,
         -- Expand vim cwd types
-        WIN_CWD = dirs.win,
-        TAB_CWD = dirs.tab,
-        GLOBAL_CWD = dirs.global,
+        win_cwd = dirs.win,
+        tab_cwd = dirs.tab,
+        global_cwd = dirs.global,
         -- Expand current file
-        FILE = vim.fn.fnamemodify(filename, ':p'),
-        FILE_EXT = vim.fn.fnamemodify(filename, ':e'),
-        FILE_TAIL = vim.fn.fnamemodify(filename, ':p:t'),
-        FILE_HEAD = vim.fn.fnamemodify(filename, ':p:h'),
+        file = vim.fn.fnamemodify(filename, ':p'),
+        file_ext = vim.fn.fnamemodify(filename, ':e'),
+        file_tail = vim.fn.fnamemodify(filename, ':p:t'),
+        file_head = vim.fn.fnamemodify(filename, ':p:h'),
     }
 
     -- Expand special variables
