@@ -79,9 +79,20 @@ function Task:from_config(config_file)
     return tasks
 end
 
+local function expand_vars(s, vars)
+    for var, value in pairs(vars) do
+        s = s:gsub('${' .. var .. '}', value)
+    end
+    return s
+end
+
 -- Expand environmental variables and special task-related variables in a string.
 -- Requires explicit syntax with curly braces, e.g. "${VAR}".
-function Task:_expand(str, win)
+function Task:_expand(str, win, opts)
+    opts = vim.tbl_extend('force', {
+        env = true
+    }, opts or {})
+
     win = win or vim.api.nvim_get_current_win()
     local buf = vim.api.nvim_win_get_buf(win)
     local filename = vim.api.nvim_buf_get_name(buf)
@@ -105,13 +116,11 @@ function Task:_expand(str, win)
     }
 
     -- Expand special variables
-    for var, value in pairs(vars) do
-        str = str:gsub('${' .. var .. '}', value)
-    end
+    str = expand_vars(str, vars)
 
     -- Expand environmental variables
-    for var, value in pairs(vim.fn.environ()) do
-        str = str:gsub('${' .. var .. '}', value)
+    if opts.env then
+        str = expand_vars(str, vim.fn.environ())
     end
 
     return str
@@ -129,6 +138,10 @@ function Task:expand_env(win)
         env[key] = self:_expand(val, win)
     end
     return env
+end
+
+function Task:expand_cmd(win)
+    return self:_expand(self.config.cmd, win, { env = false })
 end
 
 -- Kill a running task
@@ -201,7 +214,7 @@ function Task:spawn(win)
     Task.delete(self:id())
 
     self.term = Terminal:new {
-        cmd = self.config.cmd,
+        cmd = self:expand_cmd(win),
         dir = self:expand_cwd(win),
         close_on_exit = false,
         env = self:expand_env(win),
