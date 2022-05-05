@@ -17,6 +17,8 @@ function Task:new(config, config_file)
         cmd = { config.cmd, { 'string', 'table' } }, -- command to run
         cwd = { config.cwd, { 'string', 'nil' } }, -- task working directory
         tags = { config.tags, { 'string', 'table', 'nil' } }, -- tags used to filter tasks
+        env = { config.env, { 'table', 'nil' } }, -- environmental variables passed to jobstart()
+        clear_env = { config.clear_env, { 'boolean', 'nil' } }, -- passed to jobstart()
         config_file = { config_file, { 'string', 'nil' } }, -- path to config file (if loaded from file)
     }
     return setmetatable({
@@ -26,6 +28,8 @@ function Task:new(config, config_file)
             cmd = config.cmd,
             cwd = config.cwd,
             tags = utils.as_table(config.tags or {}),
+            env = config.env,
+            clear_env = config.clear_env,
         },
         config_file = config_file,
         term = nil,
@@ -173,6 +177,8 @@ function Task:spawn(win)
         cmd = self.config.cmd,
         dir = self:resolve_cwd(win),
         close_on_exit = false,
+        env = self.config.env,
+        clear_env = self.config.clear_env,
     }
     -- Mark the terminal as "ours"
     self.term._task_id = self:id()
