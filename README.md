@@ -166,7 +166,7 @@ Example configuration file `.toggletasks.json`:
 
 ```json
 {
-    "tasks": {
+    "tasks": [
         {
             "name": "Echo example",
             "cmd": "echo 'Current file = ${file}'"
@@ -209,7 +209,7 @@ Example configuration file `.toggletasks.json`:
             "cwd": "${config_dir}/frontend",
             "tags": ["dev"]
         }
-    }
+    ]
 }
 ```
 
