@@ -35,6 +35,11 @@ FEATURES                                                *toggletasks-features*
 - Use telescope <https://github.com/nvim-telescope/telescope.nvim/> to view/open/kill tasks
 
 
+<div class="figure">
+<img src="https://media.giphy.com/media/JrTEO0q8lkLVNLrehQ/giphy.gif" title="fig:"/>
+<p class="caption">usage video example</p>
+</div>
+
 OVERVIEW                                                *toggletasks-overview*
 
 The main idea behind this plugin is to be able to easily define build/setup
@@ -197,7 +202,7 @@ Example configuration file `.toggletasks.json`:
 
 >
     {
-        "tasks": {
+        "tasks": [
             {
                 "name": "Echo example",
                 "cmd": "echo 'Current file = ${file}'"
@@ -240,7 +245,7 @@ Example configuration file `.toggletasks.json`:
                 "cwd": "${config_dir}/frontend",
                 "tags": ["dev"]
             }
-        }
+        ]
     }
 <
 
