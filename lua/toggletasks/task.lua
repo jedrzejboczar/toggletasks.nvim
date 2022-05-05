@@ -76,7 +76,9 @@ end
 function Task:from_config(config_file)
     config_file = Path:new(config_file)
     local conf = load_config(config_file)
-    if not conf then return end
+    if not conf then
+        return
+    end
 
     local tasks = {}
     for i, task_conf in ipairs(conf.tasks or {}) do
@@ -102,7 +104,7 @@ end
 -- Requires explicit syntax with curly braces, e.g. "${VAR}".
 function Task:_expand(str, win, opts)
     opts = vim.tbl_extend('force', {
-        env = true
+        env = true,
     }, opts or {})
 
     win = win or vim.api.nvim_get_current_win()
@@ -144,7 +146,9 @@ function Task:expand_cwd(win)
 end
 
 function Task:expand_env(win)
-    if not self.config.env then return end
+    if not self.config.env then
+        return
+    end
     local env = {}
     for key, val in pairs(self.config.env) do
         env[key] = self:_expand(val, win)

@@ -66,7 +66,7 @@ local function task_previewer(opts)
                 vim.api.nvim_buf_set_option(self.state.bufnr, 'filetype', 'lua')
                 vim.api.nvim_buf_set_lines(self.state.bufnr, 0, -1, false, utils.split_lines(s))
             end
-        end
+        end,
     }
 end
 
@@ -91,10 +91,10 @@ local function terminal_previewer(opts)
 
             if is_cached or (last_time and vim.loop.now() > last_time + delay_ms) then
                 local buf = vim.F.npcall(function()
-                   return entry.value.term.bufnr
+                    return entry.value.term.bufnr
                 end)
 
-                local lines = {'<ERROR: buffer not available>'}
+                local lines = { '<ERROR: buffer not available>' }
                 if buf and vim.api.nvim_buf_is_valid(buf) then
                     lines = vim.api.nvim_buf_get_lines(buf, 0, -1, false)
                 end
@@ -175,7 +175,7 @@ function M.spawn(opts)
     end
 
     pickers.new(opts, {
-        prompt_title = "Spawn tasks",
+        prompt_title = 'Spawn tasks',
         finder = finders.new_table {
             results = tasks,
             entry_maker = make_task_entry,
@@ -226,7 +226,7 @@ function M.select(opts)
     local c = config.telescope.select
 
     pickers.new(opts, {
-        prompt_title = "Select tasks",
+        prompt_title = 'Select tasks',
         finder = finders.new_table {
             results = Task.get_all(),
             entry_maker = make_task_entry,
@@ -271,7 +271,7 @@ end
 function M.edit(opts)
     opts = opts or {}
     pickers.new(opts, {
-        prompt_title = "Edit config",
+        prompt_title = 'Edit config',
         finder = finders.new_table {
             results = discovery.config_files(opts),
             entry_maker = make_entry.gen_from_file(opts),
