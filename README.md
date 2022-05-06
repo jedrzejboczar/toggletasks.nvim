@@ -2,7 +2,7 @@
 
 # toggletasks.nvim
 
-Neovim project-local task management: JSON + [toggleterm.nvim](https://github.com/akinsho/toggleterm.nvim) + [telescope.nvim](https://github.com/nvim-telescope/telescope.nvim/).
+Neovim project-local task management: JSON/YAML + [toggleterm.nvim](https://github.com/akinsho/toggleterm.nvim) + [telescope.nvim](https://github.com/nvim-telescope/telescope.nvim/).
 
 ## Features
 
