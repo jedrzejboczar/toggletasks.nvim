@@ -3,30 +3,34 @@ local M = {}
 local Path = require('plenary.path')
 local config = require('toggletasks.config')
 
-function M.debug(...)
-    if config.debug then
-        local args = { ... }
-        -- TODO: test version with a function
-        if type(args[1]) == 'function' then
-            args = args[1](select(2, ...))
+local function logger(level, notify_fn, cond)
+    return function(...)
+        if cond and not cond() then
+            return
         end
-        vim.notify(string.format(unpack(args)), vim.log.levels.DEBUG)
+        -- Use notify_fn as string to get correct function if user
+        -- replaced it later via vim.notify = ...
+        local notify = vim[notify_fn]
+        notify(string.format(...), level)
     end
 end
 
-function M.info(...)
-    if not config.silent then
-        vim.notify(string.format(...))
-    end
+local function debug_enabled()
+    return config.debug
 end
 
-function M.warn(...)
-    vim.notify(string.format(...), vim.log.levels.WARN)
+local function info_enabled()
+    return not config.silent
 end
 
-function M.error(...)
-    vim.notify(string.format(...), vim.log.levels.ERROR)
-end
+M.debug = logger(vim.log.levels.DEBUG, 'notify', debug_enabled)
+M.debug_once = logger(vim.log.levels.DEBUG, 'notify_once', debug_enabled)
+M.info = logger(vim.log.levels.INFO, 'notify', info_enabled)
+M.info_once = logger(vim.log.levels.INFO, 'notify_once', info_enabled)
+M.warn = logger(vim.log.levels.WARN, 'notify')
+M.warn_once = logger(vim.log.levels.WARN, 'notify_once')
+M.error = logger(vim.log.levels.ERROR, 'notify')
+M.error_once = logger(vim.log.levels.ERROR, 'notify_once')
 
 function M.as_table(v)
     return type(v) ~= 'table' and { v } or v

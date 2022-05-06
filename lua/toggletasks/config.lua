@@ -7,6 +7,7 @@ local function defaults()
     -- stylua: ignore
     return {
         debug = false,
+        silent = false,
         short_paths = true,
         search_paths = {
             'toggletasks.json',
