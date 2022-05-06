@@ -81,12 +81,11 @@ local function auto_spawn(event, tag_or_filter)
 
     vim.api.nvim_create_autocmd(event, {
         group = augroup(),
-        desc = 'Auto spawn tasks with #' .. tag,
+        desc = 'Auto spawn tasks with #' .. tostring(tag_or_filter),
         -- FIXME: for some reason e.g. SessionLoadPost triggers multiple times,
         -- so we restrict how often this can be called
         callback = utils.throttle(callback, 1000),
     })
-
 end
 
 return {
