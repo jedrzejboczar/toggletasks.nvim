@@ -57,14 +57,41 @@ local function task_previewer(opts)
         define_preview = function(self, entry, status)
             local task = entry.value
             if self.state.bufname ~= entry.value:id() then
-                -- Add some metadata
-                local data = vim.tbl_extend('force', task.config, {
-                    ['$config'] = utils.short_path(task.config_file),
-                })
-                -- Cheap way to get decent display as Lua table
-                local s = vim.inspect(data)
+                local lines = {}
+
+                table.insert(lines, '-- Config file: ' .. (
+                    task.config_file and utils.short_path(task.config_file) or 'NONE'
+                ))
+
+                local add_field = function(field)
+                    -- Special handling of some fields
+                    if field == 'id' and task.config.name == task.config.id then
+                        table.insert(lines, 'id = name')
+                        return
+                    end
+
+                    local val = task.config[field]
+                    -- -- Special handling for multi-line strings?
+                    -- local s
+                    -- if type(val) == 'string' and val:match('\n') then
+                    --     s = '[[\n' .. val .. ']]'
+                    -- else
+                    --     s = vim.inspect(val)
+                    -- end
+                    s = vim.inspect(val)
+
+                    local val_lines = vim.split(s, '\n', { plain = true, trimempty = true })
+                    table.insert(lines, field .. ' = ' .. val_lines[1])
+                    vim.list_extend(lines, vim.list_slice(val_lines, 2))
+                end
+
+                local order = 'name id cmd cwd tags env clear_env close_on_exit hidden count'
+                for _, field in ipairs(vim.split(order, '%s+')) do
+                    add_field(field)
+                end
+
                 vim.api.nvim_buf_set_option(self.state.bufnr, 'filetype', 'lua')
-                vim.api.nvim_buf_set_lines(self.state.bufnr, 0, -1, false, utils.split_lines(s))
+                vim.api.nvim_buf_set_lines(self.state.bufnr, 0, -1, false, lines)
             end
         end,
     }
