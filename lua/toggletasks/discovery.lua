@@ -55,7 +55,51 @@ function M.config_files(opts)
     return files
 end
 
--- Find all tasks for given/current window
+-- Wrapper around task list allowing for convenient chained filtering
+local TaskQuery = {}
+TaskQuery.__index = TaskQuery
+
+function TaskQuery:new(tasks)
+    return setmetatable(tasks, self)
+end
+
+-- Unwrap returning just the internal list without metatable
+function TaskQuery:to_list()
+    return vim.list_slice(self)
+end
+
+-- Filter based on predicate fn(Task) -> boolean
+function TaskQuery:filter(fn)
+    local tasks = vim.tbl_filter(fn, self)
+    return TaskQuery:new(tasks)
+end
+
+function TaskQuery:with_tag(tag)
+    return self:filter(function(task)
+        return vim.tbl_contains(task.config.tags or {}, tag)
+    end)
+end
+
+function TaskQuery:not_tag(tag)
+    return self:filter(function(task)
+        return not vim.tbl_contains(task.config.tags or {}, tag)
+    end)
+end
+
+function TaskQuery:from_file(file)
+    return self:filter(function(task)
+        return Path:new(task.config_file):absolute() == Path:new(file):absolute()
+    end)
+end
+
+function TaskQuery:name_matches(pattern)
+    return self:filter(function(task)
+        return task.config.name:match(pattern)
+    end)
+end
+
+-- Find all tasks for given/current window, returning a list wrapped in TaskQuery.
+-- Can be filtered as `M.tasks():with_tag('dev'):no_tag('build')`
 function M.tasks(opts)
     local files = M.config_files(opts)
 
@@ -68,7 +112,7 @@ function M.tasks(opts)
     end
     utils.debug('discover: found %d tasks in total', #tasks)
 
-    return tasks
+    return TaskQuery:new(tasks)
 end
 
 return M
