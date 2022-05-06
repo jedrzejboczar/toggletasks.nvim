@@ -4,7 +4,6 @@ local loader = require('toggletasks.loader')
 local utils = require('toggletasks.utils')
 
 local function plugin_info()
-    local extensions = table.concat(loader.supported_extensions(), ', ')
     local info = {
         ['lyaml installed'] = pcall(require, 'lyaml'),
         ['Supported extensions'] = table.concat(loader.supported_extensions(), ', '),

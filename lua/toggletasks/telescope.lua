@@ -59,9 +59,10 @@ local function task_previewer(opts)
             if self.state.bufname ~= entry.value:id() then
                 local lines = {}
 
-                table.insert(lines, '-- Config file: ' .. (
-                    task.config_file and utils.short_path(task.config_file) or 'NONE'
-                ))
+                table.insert(
+                    lines,
+                    '-- Config file: ' .. (task.config_file and utils.short_path(task.config_file) or 'NONE')
+                )
 
                 local add_field = function(field)
                     -- Special handling of some fields
@@ -71,8 +72,8 @@ local function task_previewer(opts)
                     end
 
                     local val = task.config[field]
+                    local s
                     -- -- Special handling for multi-line strings?
-                    -- local s
                     -- if type(val) == 'string' and val:match('\n') then
                     --     s = '[[\n' .. val .. ']]'
                     -- else

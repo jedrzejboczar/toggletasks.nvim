@@ -16,7 +16,7 @@ local dumpers = {
     json = vim.json.encode,
     yaml = function(t)
         -- Expects a list of "YAML documents", so the dumped table must be wrapped in a list
-        return lyaml.dump({ t })
+        return lyaml.dump { t }
     end,
 }
 
@@ -29,14 +29,17 @@ local function get_ft(path)
     local ext = vim.fn.fnamemodify(path:absolute(), ':p:e'):lower()
 
     if not vim.tbl_contains(M.supported_extensions(), ext) then
-        utils.error('Unsupported config file extension "%s", available: %s',
-            utils.short_path(path), table.concat(M.supported_extensions(), ', '))
+        utils.error(
+            'Unsupported config file extension "%s", available: %s',
+            utils.short_path(path),
+            table.concat(M.supported_extensions(), ', ')
+        )
         return
     end
 
     if ext == 'json' then
         return 'json'
-    elseif vim.tbl_contains({'yaml', 'yml'}, ext) then
+    elseif vim.tbl_contains({ 'yaml', 'yml' }, ext) then
         return 'yaml'
     else
         assert(false, 'Should be unreachable: inconsistent M.supported_extensions')
