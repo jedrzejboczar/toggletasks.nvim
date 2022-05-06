@@ -7,7 +7,8 @@ Neovim project-local task management: JSON + [toggleterm.nvim](https://github.co
 ## Features
 
 * Define task via JSON, similarly to [VS Code Tasks](https://code.visualstudio.com/Docs/editor/tasks)
-* Collect JSON configs from multiple directories: global/tab/win CWD, LSP root dir
+* Support for **YAML**-based configuration using [lyaml](https://github.com/gvvaughan/lyaml)
+* Collect configs from multiple directories: global/tab/win CWD, LSP root dir
 * Run tasks in terminals managed by [toggleterm](https://github.com/akinsho/toggleterm.nvim)
 * Use [telescope](https://github.com/nvim-telescope/telescope.nvim/) to spawn single/multiple tasks
 * Filter tasks based on #tags defined in config files
@@ -58,6 +59,8 @@ use {
         'akinsho/toggleterm.nvim',
         'nvim-telescope/telescope.nvim/',
     },
+    -- To enable YAML config support
+    rocks = 'lyaml',
 }
 ```
 
@@ -69,12 +72,14 @@ Available options (with default values):
 ```lua
 require('toggletasks').setup {
     debug = false,
+    silent = false,  -- don't show "info" messages
     short_paths = true,  -- display relative paths when possible
-    -- Paths to task configuration files (relative to scanned directory)
+    -- Paths (without extension) to task configuration files (relative to scanned directory)
+    -- All supported extensions will be tested, e.g. '.toggletasks.json', '.toggletasks.yaml'
     search_paths = {
-        'toggletasks.json',
-        '.toggletasks.json',
-        '.nvim/toggletasks.json',
+        'toggletasks',
+        '.toggletasks',
+        '.nvim/toggletasks',
     },
     -- Directories to consider when searching for available tasks for current window
     scan = {
@@ -130,7 +135,12 @@ To load telescope pickers:
 require('telescope').load_extension('toggletasks')
 ```
 
-## JSON config format
+## Config format
+
+JSON configuration files are supported out-of-the-box via `vim.json` module.
+To enable YAML support, [lyaml](https://github.com/gvvaughan/lyaml) must be installed.
+It is possible to [use packer to install luarocks](https://github.com/wbthomason/packer.nvim#luarocks-support=),
+see [##Installation].
 
 Available fields:
 
@@ -162,7 +172,7 @@ Available special variables (snake case to minimize collisions with env):
 * `${file_tail}` - current file's tail (`fnamemodify(..., ':p:t')`)
 * `${file_head}` - current file's head (`fnamemodify(..., ':p:h')`)
 
-Example configuration file `.toggletasks.json`:
+JSON configuration example file:
 
 ```json
 {
@@ -213,6 +223,21 @@ Example configuration file `.toggletasks.json`:
 }
 ```
 
+YAML configuration example:
+
+```yaml
+tasks:
+- name: Echo example
+  cmd: echo 'Current file = ${file}'
+- name: django runserver
+  cmd: python manage.py runserver
+  cwd: ${config_dir}
+  env:
+    PATH: ${config_dir}/venv/bin:${PATH}
+  tags:
+  - dev
+```
+
 ## Usage
 
 To use this plugin use the included telescope pickers:
@@ -233,10 +258,16 @@ To select all tasks that are currently visible press `<C-a>` (default). To manua
 `<Tab>`/`<S-Tab>` (telescope defaults) to perform multi-selection and press `<C-a>` to spawn
 selected tasks.
 
+### Commands
+
+The following commands are available:
+
+* `ToggleTasksInfo` - show current configuration
+* `ToggleTasksConvert <from_file> <to_file>` - convert between configuration file formats (by file extension)
+
 ## TODO
 
 - [ ] Integration with [possession.nvim](https://github.com/jedrzejboczar/possession.nvim) by marking
     tasks with `possession` tag - no changes required in this plugin
 - [ ] Option to define some tasks from Lua in setup
 - [ ] Task "templates": one task could inherit options from another ("extends")
-- [ ] YAML support using [lyaml](https://github.com/gvvaughan/lyaml) from luarocks via packer
