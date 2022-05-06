@@ -3,6 +3,7 @@ local terminal = require('toggleterm.terminal')
 local Terminal = require('toggleterm.terminal').Terminal
 local utils = require('toggletasks.utils')
 local config = require('toggletasks.config')
+local loader = require('toggletasks.loader')
 
 local Task = {}
 Task.__index = Task
@@ -48,34 +49,10 @@ function Task:new(conf, config_file)
     }, self)
 end
 
-local function load_config(file)
-    local path = Path:new(file)
-    if not path:exists() then
-        utils.warn('Config file does not exist: %s', path:absolute())
-        return
-    end
-
-    local content = vim.F.npcall(path.read, path)
-    if not content then
-        utils.warn('Could not read task config: %s', path:absolute())
-        return
-    end
-
-    local conf = vim.F.npcall(vim.json.decode, content)
-    if not conf then
-        utils.warn('Invalid tasks config format: %s', path:absolute())
-        return
-    end
-
-    utils.debug('load_config: loaded: %s', utils.short_path(file))
-
-    return conf
-end
-
 -- Extract tasks from a JSON config file
 function Task:from_config(config_file)
     config_file = Path:new(config_file)
-    local conf = load_config(config_file)
+    local conf = loader.load_config(config_file)
     if not conf then
         return
     end

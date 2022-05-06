@@ -10,9 +10,9 @@ local function defaults()
         silent = false,
         short_paths = true,
         search_paths = {
-            'toggletasks.json',
-            '.toggletasks.json',
-            '.nvim/toggletasks.json',
+            'toggletasks',
+            '.toggletasks',
+            '.nvim/toggletasks',
         },
         scan = {
             global_cwd = true,

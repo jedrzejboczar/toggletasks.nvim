@@ -4,6 +4,7 @@ local Path = require('plenary.path')
 local Task = require('toggletasks.task')
 local utils = require('toggletasks.utils')
 local config = require('toggletasks.config')
+local loader = require('toggletasks.loader')
 
 -- Find candidate configuration directories for given/current window
 function M.config_dirs(opts)
@@ -42,9 +43,11 @@ function M.config_files(opts)
     for _, dir in ipairs(dirs) do
         dir = Path:new(dir)
         for _, path in ipairs(config.search_paths) do
-            local file = dir / path
-            if file:exists() then
-                table.insert(files, file:absolute())
+            for _, ext in ipairs(loader.supported_extensions()) do
+                local file = dir / (path .. '.' .. ext)
+                if file:exists() then
+                    table.insert(files, file:absolute())
+                end
             end
         end
     end
