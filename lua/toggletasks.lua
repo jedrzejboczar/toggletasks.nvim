@@ -1,6 +1,7 @@
 local Path = require('plenary.path')
 local config = require('toggletasks.config')
 local loader = require('toggletasks.loader')
+local discovery = require('toggletasks.discovery')
 local utils = require('toggletasks.utils')
 
 local function plugin_info()
@@ -54,6 +55,41 @@ local function setup(opts)
     add_commands()
 end
 
+local augroup = utils.lazy(function()
+    return vim.api.nvim_create_augroup('ToggleTasks', { clear = true })
+end)
+
+-- Setup autocmd to spawn all tasks matching a tag on given event.
+--@param event string|table: see nvim_create_autocmd
+--@param tag_or_filter string|function: use tasks containing given tag,
+-- if this is a function than it should map fn(TaskQuery) -> TaskQuery
+local function auto_spawn(event, tag_or_filter)
+    local is_fn = type(tag_or_filter) == 'function'
+    local filter = is_fn and tag_or_filter or function(tasks)
+        return tasks:with_tag(tag_or_filter)
+    end
+
+    local callback = function()
+        local tasks = filter(discovery.tasks())
+        if #tasks ~= 0 then
+            for _, task in ipairs(tasks) do
+                task:spawn()
+            end
+            utils.info('Spawned %d tasks', #tasks)
+        end
+    end
+
+    vim.api.nvim_create_autocmd(event, {
+        group = augroup(),
+        desc = 'Auto spawn tasks with #' .. tag,
+        -- FIXME: for some reason e.g. SessionLoadPost triggers multiple times,
+        -- so we restrict how often this can be called
+        callback = utils.throttle(callback, 1000),
+    })
+
+end
+
 return {
     setup = setup,
+    auto_spawn = auto_spawn,
 }

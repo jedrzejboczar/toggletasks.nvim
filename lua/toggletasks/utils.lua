@@ -108,4 +108,33 @@ function M.short_path(path)
     end
 end
 
+-- Lazily evaluate a function, caching the result of the first call
+-- for all subsequent calls ever.
+function M.lazy(fn)
+    local cached
+    return function(...)
+        if cached == nil then
+            cached = fn(...)
+            assert(cached ~= nil, 'lazy: fn returned nil')
+        end
+        return cached
+    end
+end
+
+-- Wrap function with time based throttling - will cache results until
+-- `timeout` milliseconds since last function call. Note that timestamp
+-- does not change until we reach next libuv event loop step.
+function M.throttle(fn, timeout)
+    local last_time
+    local cached
+    return function(...)
+        -- Recompute
+        if not last_time or vim.loop.now() > last_time + timeout then
+            cached = fn(...)
+            last_time = vim.loop.now()
+        end
+        return cached
+    end
+end
+
 return M
