@@ -13,6 +13,7 @@ Neovim project-local task management: JSON/YAML + [toggleterm.nvim](https://gith
 * Use [telescope](https://github.com/nvim-telescope/telescope.nvim/) to spawn single/multiple tasks
 * Filter tasks based on #tags defined in config files
 * Use [telescope](https://github.com/nvim-telescope/telescope.nvim/) to view/open/kill tasks
+* Automatic spawning on e.g. `SessionLoadPost` (see [Automatic task spawning](#automatic-task-spawning))
 
 ![usage video example](https://media.giphy.com/media/JrTEO0q8lkLVNLrehQ/giphy.gif)
 
@@ -140,7 +141,7 @@ require('telescope').load_extension('toggletasks')
 JSON configuration files are supported out-of-the-box via `vim.json` module.
 To enable YAML support, [lyaml](https://github.com/gvvaughan/lyaml) must be installed.
 It is possible to [use packer to install luarocks](https://github.com/wbthomason/packer.nvim#luarocks-support=),
-see [##Installation].
+see [Installation](#installation).
 
 Available fields:
 
@@ -264,6 +265,33 @@ The following commands are available:
 
 * `ToggleTasksInfo` - show current configuration
 * `ToggleTasksConvert <from_file> <to_file>` - convert between configuration file formats (by file extension)
+
+### Automatic task spawning
+
+It is possible to automatically launch tasks on autocmd events, e.g. to launch tasks on `VimEnter`
+or `SessionLoadPost`. This plugin exposes convenient function to achieve that.
+
+For example, to launch all tasks marked with the `auto` tag whenever a session is loaded use:
+
+```lua
+require('toggletasks').auto_spawn('SessionLoadPost', 'auto')
+```
+
+The first argument (`event`) is the same as for `vim.api.nvim_create_autocmd`.
+For more fine grained `auto_spawn` can take a function as the second argument:
+
+```lua
+require('toggletasks').auto_spawn({'VimEnter', 'SessionLoadPost'}, function(tasks)
+    return tasks
+        :with_tag('auto')
+        :not_tag('test')
+        :from_file('/some/path/toggletasks.json')
+        :name_matches('^/some/path.*$')
+        :filter(function(task)
+            return task.config.name ~= 'Hello world'
+        end)
+end)
+```
 
 ## TODO
 
