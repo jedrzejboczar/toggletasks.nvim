@@ -84,7 +84,7 @@ function M.get_work_dirs(win)
     win = win or vim.api.nvim_get_current_win()
     return {
         win = vim.fn.getcwd(win),
-        tab = vim.fn.getcwd(-1, vim.api.nvim_win_get_tabpage(win)),
+        tab = vim.fn.getcwd(-1, vim.api.nvim_tabpage_get_number(vim.api.nvim_win_get_tabpage(win))),
         global = vim.fn.getcwd(-1, -1),
         lsp = M.get_lsp_roots(vim.api.nvim_win_get_buf(win)),
     }
