@@ -119,6 +119,8 @@ end
 
 -- Expand environmental variables and special task-related variables in a string.
 -- Requires explicit syntax with curly braces, e.g. "${VAR}".
+-- Can be escaped via "$$", e.g. "$${VAR}" will be expanded to "${VAR}".
+-- Supports fnamemodify modifiers e.g. "${VAR:t:r}" (see |filename-modifiers|).
 function Task:_expand(str, win, opts)
     opts = vim.tbl_extend('force', {
         env = true,
@@ -141,18 +143,33 @@ function Task:_expand(str, win, opts)
         global_cwd = dirs.global,
         -- Expand current file
         file = vim.fn.fnamemodify(filename, ':p'),
+        -- Leave for backwards compatibility, though these can be achieved by e.g. "${file:p:t}"
         file_ext = vim.fn.fnamemodify(filename, ':e'),
         file_tail = vim.fn.fnamemodify(filename, ':p:t'),
         file_head = vim.fn.fnamemodify(filename, ':p:h'),
     }
 
     local expand = function(var)
+        -- Check filename modifiers
+        local colon = var:find(':')
+        local mods
+        if colon then
+            mods = var:sub(colon)
+            var = var:sub(1, colon - 1)
+        end
+
         -- Expand special variables
         local s = vars[var]
         -- Expand environmental variables
         if not s and opts.env then
             s = vim.fn.environ()[var]
         end
+
+        -- Apply modifiers
+        if mods then
+            s = vim.fn.fnamemodify(s, mods)
+        end
+
         return s
     end
 
