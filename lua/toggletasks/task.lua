@@ -70,11 +70,51 @@ function Task:from_config(config_file)
     return tasks
 end
 
-local function expand_vars(s, vars)
-    for var, value in pairs(vars) do
-        s = s:gsub('${' .. var .. '}', value)
+-- Expand "${something}" but not "$${something}"
+local function expand_vars(s, handler)
+    local parts = {}
+    local start = 0
+    while true do
+        local left = s:find('%${', start + 1)
+        -- No next expansion - add remaining string and break
+        if left == nil then
+            table.insert(parts, s:sub(start + 1))
+            break
+        end
+
+        local prev_char = s:sub(left - 1, left - 1)
+        -- If user escaped the expansion ("$${...}") than replace $$ with $
+        if prev_char == '$' then
+            -- "string $${escaped}"
+            -- +-------+ +--------
+            --  insert   start
+            table.insert(parts, s:sub(start + 1, left - 1))
+            start = left
+        else
+            -- Unescaped expansion, first insert text before
+            table.insert(parts, s:sub(start + 1, left - 1))
+
+            -- Find expansion end
+            local right = s:find('}', left + 2)
+            if not right then
+                -- Avoid assertion by returning unescaped value
+                utils.error('Missing closing bracket when expanding: "%s"', s)
+                return s
+            end
+
+            -- Expand
+            local inner = s:sub(left + 2, right - 1)
+            local expansion = handler(inner)
+            if not expansion then
+                expansion = ''
+                utils.warn('Unknown expansion variable "%s"', inner)
+            end
+            table.insert(parts, expansion)
+            start = right
+        end
     end
-    return s
+    utils.debug('expand_vars: "%s" -> %s', s, vim.inspect(parts))
+    return table.concat(parts, '')
 end
 
 -- Expand environmental variables and special task-related variables in a string.
@@ -106,15 +146,17 @@ function Task:_expand(str, win, opts)
         file_head = vim.fn.fnamemodify(filename, ':p:h'),
     }
 
-    -- Expand special variables
-    str = expand_vars(str, vars)
-
-    -- Expand environmental variables
-    if opts.env then
-        str = expand_vars(str, vim.fn.environ())
+    local expand = function(var)
+        -- Expand special variables
+        local s = vars[var]
+        -- Expand environmental variables
+        if not s and opts.env then
+            s = vim.fn.environ()[var]
+        end
+        return s
     end
 
-    return str
+    return expand_vars(str, expand)
 end
 
 function Task:expand_cwd(win)
