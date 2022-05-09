@@ -124,6 +124,9 @@ require('toggletasks').setup {
                 kill_smart = '<C-q>',
                 kill_all = '<M-q>',
                 kill_selected = nil,
+                respawn_smart = '<C-s>',
+                respawn_all = '<M-s>',
+                respawn_selected = nil,
             },
         },
     },
@@ -244,7 +247,7 @@ tasks:
 To use this plugin use the included telescope pickers:
 
 * spawn tasks: `Telescope toggletasks spawn`
-* select running tasks (open/kill): `Telescope toggletasks select`
+* select running tasks (open/kill/respawn): `Telescope toggletasks select`
 * edit config files: `Telescope toggletasks edit`
 
 These commands can be mapped to keybindings, e.g.
