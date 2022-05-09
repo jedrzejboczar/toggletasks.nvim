@@ -73,7 +73,11 @@ local function auto_spawn(event, tag_or_filter)
         local tasks = filter(discovery.tasks())
         if #tasks ~= 0 then
             for _, task in ipairs(tasks) do
-                task:spawn()
+                -- It seems that spawnning during SessionLoadPost will not setup the buffer
+                -- correctly (no TermOpen?). Scheduling for next loop step solves the issue.
+                vim.schedule(function()
+                    task:spawn()
+                end)
             end
             utils.info('Spawned %d tasks', #tasks)
         end
