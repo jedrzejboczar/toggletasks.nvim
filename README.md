@@ -161,7 +161,9 @@ Available fields:
 | hidden | `boolean?` | Don't include this task in toggleterm tasks list ([see toggleterm](https://github.com/akinsho/toggleterm.nvim#custom-terminals)) |
 | count | `number?` | Use given terminal number ([see toggleterm](https://github.com/akinsho/toggleterm.nvim#custom-terminals)) |
 
-Variable expansion is supported using the syntax `${VAR}`.
+Variable expansion is supported using the syntax `${VAR}` (escaped by double `$`, e.g. `$${VAR}` will expand to `${VAR}`).
+
+
 Environmental variables will be expanded in fields: `cwd`, `env`.
 Additionally some special variables will be expanded in fields: `cmd`, `cwd`, `env`.
 Available special variables (snake case to minimize collisions with env):
@@ -172,9 +174,10 @@ Available special variables (snake case to minimize collisions with env):
 * `${tab_cwd}` - Vim's tab-local CWD
 * `${global_cwd}` - Vim's global CWD
 * `${file}` - absolute path to the current buffer's file
-* `${file_ext}` - current file's extension
-* `${file_tail}` - current file's tail (`fnamemodify(..., ':p:t')`)
-* `${file_head}` - current file's head (`fnamemodify(..., ':p:h')`)
+
+Vim [filename-modifiers](https://neovim.io/doc/user/cmdline.html#filename-modifiers) can be used inside the expansion
+to modify the paths (by default all paths are absoulte),
+e.g. `${file:t:r}` will transform `/path/to/my-file.txt` into `my-file`.
 
 JSON configuration example file:
 
