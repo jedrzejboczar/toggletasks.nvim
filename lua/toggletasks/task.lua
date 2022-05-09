@@ -228,6 +228,25 @@ function Task:spawn(win)
     utils.debug('Task:spawn: task "%s" in term "%s"', self:id(), self.term.id)
 end
 
+-- Respawn an already running task with the same settings.
+-- This re-uses terminal options of the running task (so not expanding based on current window).
+function Task:respawn()
+    -- Get the actually running task object
+    local self = Task.get(self:id())
+    if not self then
+        utils.error('Task is not running, cannot respawn: "%s"', self.config.name)
+        return
+    end
+
+    self.term:shutdown()
+    utils.debug('Task:respawn: shutdown done')
+    vim.schedule(function()
+        self.term:spawn()
+    end)
+
+    utils.debug('Task:respawn: task "%s" in term "%s"', self:id(), self.term.id)
+end
+
 function Task:is_running()
     return Task.get(self:id()) ~= nil
 end

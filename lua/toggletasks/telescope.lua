@@ -276,6 +276,8 @@ function M.select(opts)
                 return function(task)
                     if act_opts.typ == 'kill' then
                         task:shutdown()
+                    elseif act_opts.typ == 'respawn' then
+                        task:respawn()
                     else
                         if act_opts.dir then
                             task.term:change_direction(act_opts.dir)
@@ -307,6 +309,11 @@ function M.select(opts)
             try_map(map, c.mappings.kill_smart, task_action(get_smart, act { typ = 'kill' }, info))
             try_map(map, c.mappings.kill_all, task_action(get_all, act { typ = 'kill' }, info))
             try_map(map, c.mappings.kill_selected, task_action(get_selected, act { typ = 'kill' }, info))
+
+            info = multi_task_info('Respawned')
+            try_map(map, c.mappings.respawn_smart, task_action(get_smart, act { typ = 'respawn' }, info))
+            try_map(map, c.mappings.respawn_all, task_action(get_all, act { typ = 'respawn' }, info))
+            try_map(map, c.mappings.respawn_selected, task_action(get_selected, act { typ = 'respawn' }, info))
 
             return true
         end,
