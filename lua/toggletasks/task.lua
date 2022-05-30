@@ -253,7 +253,6 @@ end
 function Task:shutdown()
     if self.term then
         self.term:shutdown()
-        terminal.delete(self.term.id)
         self.term = nil
         running[self:id()] = nil
     end
