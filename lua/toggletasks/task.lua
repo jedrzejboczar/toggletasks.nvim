@@ -1,5 +1,4 @@
 local Path = require('plenary.path')
-local terminal = require('toggleterm.terminal')
 local Terminal = require('toggleterm.terminal').Terminal
 local utils = require('toggletasks.utils')
 local config = require('toggletasks.config')
