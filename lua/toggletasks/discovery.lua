@@ -88,7 +88,13 @@ end
 
 function TaskQuery:from_file(file)
     return self:filter(function(task)
-        return Path:new(task.config_file):absolute() == Path:new(file):absolute()
+        if file == nil then
+            -- Tasks defined from Lua
+            return task.config_file == nil
+        else
+            -- Tasks defined in files
+            return task.config_file and Path:new(task.config_file):absolute() == Path:new(file):absolute()
+        end
     end)
 end
 
