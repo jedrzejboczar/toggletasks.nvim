@@ -28,6 +28,19 @@ function M.config_dirs(opts)
         table.insert(dirs, work_dirs.global)
     end
 
+    if scan.rtp then
+        vim.list_extend(dirs, vim.api.nvim_get_runtime_file('', true))
+    end
+
+    if scan.rtp_ftplugin then
+        local buf = vim.api.nvim_win_get_buf(win)
+        local ft = vim.api.nvim_buf_get_option(buf, 'filetype')
+        if ft ~= '' then
+            local glob = string.format('ftplugin/%s', ft)
+            vim.list_extend(dirs, vim.api.nvim_get_runtime_file(glob, true))
+        end
+    end
+
     dirs = utils.unique(dirs)
     utils.debug('discovery.config_dirs: %s', vim.inspect(vim.tbl_map(utils.short_path, dirs)))
 

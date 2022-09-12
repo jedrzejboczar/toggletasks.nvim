@@ -20,6 +20,8 @@ local function defaults()
             win_cwd = true,
             lsp_root = true,
             dirs = {},
+            rtp = false,
+            rtp_ftplugin = false,
         },
         lsp_priorities = {
             ['null-ls'] = -10,
