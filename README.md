@@ -298,10 +298,48 @@ require('toggletasks').auto_spawn({'VimEnter', 'SessionLoadPost'}, function(task
         end)
 end)
 ```
+## Global tasks
+
+Sometimes it would be handy to share some common tasks between projects without the need to add config files
+to all of these. It might also be handy to only include some tasks for certain filetypes.
+There are several ways to achieve this in `toggletasks.nvim`.
+
+1. Put task config file somewhere under `&runtimepath` (e.g. `~/.config/nvim/toggletasks.json`) and enable
+   option `scan.rtp = true`. Note that this adds a lot of paths for scanning so in theory it might have
+   some performance impact (but probably not noticeable).
+
+2. Put task config files for given filetypes under `ftplugin/FILETYPE` in `&runtimepath` and enable
+   the option `scan.rtp_ftplugin = true` (should be much faster than 1.). For example, to add Lua-specific
+   tasks one could add a file `~/.config/nvim/ftplugin/lua/toggletasks.json`.
+
+3. Use the setup option `scan.dirs` as a `function(win)`, and return the directories in which to search for task
+   config files. You can use the `win` argument to get the filetype of current buffer, or to check any other
+   conditions, which can be used to select specific directories with task config files.
+
+4. Define tasks directly in Lua in your setup function. Use a function to have even more control over which
+   tasks should be included, e.g.
+
+```lua
+require('toggletasks').setup {
+    tasks = function(win)
+        local ft = vim.api.nvim_buf_get_option(vim.api.nvim_win_get_buf(win), 'filetype')
+        local tasks = {
+            {
+                name = 'Some task',
+                cmd = 'echo "hello"'
+            },
+        }
+        if ft == 'lua' then
+            -- table.insert(tasks, { name = ... })
+        end
+        return tasks
+    end,
+    -- ...
+}
+```
 
 ## TODO
 
 - [ ] Integration with [possession.nvim](https://github.com/jedrzejboczar/possession.nvim) by marking
     tasks with `possession` tag - no changes required in this plugin
-- [ ] Option to define some tasks from Lua in setup
 - [ ] Task "templates": one task could inherit options from another ("extends")
