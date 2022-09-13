@@ -214,47 +214,49 @@ function M.spawn(opts)
         end, tasks)
     end
 
-    pickers.new(opts, {
-        prompt_title = 'Spawn tasks',
-        finder = finders.new_table {
-            results = tasks,
-            entry_maker = make_task_entry,
-        },
-        sorter = conf.generic_sorter(opts),
-        previewer = task_previewer(opts),
-        attach_mappings = function(buf, map)
-            local act = function(act_opts)
-                act_opts = act_opts or {}
-                return function(task)
-                    task:spawn(act_opts.win)
-                    if act_opts.dir then
-                        task.term:change_direction(act_opts.dir)
-                    end
-                    if act_opts.open then
-                        task.term:open()
+    pickers
+        .new(opts, {
+            prompt_title = 'Spawn tasks',
+            finder = finders.new_table {
+                results = tasks,
+                entry_maker = make_task_entry,
+            },
+            sorter = conf.generic_sorter(opts),
+            previewer = task_previewer(opts),
+            attach_mappings = function(buf, map)
+                local act = function(act_opts)
+                    act_opts = act_opts or {}
+                    return function(task)
+                        task:spawn(act_opts.win)
+                        if act_opts.dir then
+                            task.term:change_direction(act_opts.dir)
+                        end
+                        if act_opts.open then
+                            task.term:open()
+                        end
                     end
                 end
-            end
 
-            local replace = {
-                select_default = act { open = open_single },
-                select_horizontal = act { open = open_single, dir = 'horizontal' },
-                select_vertical = act { open = open_single, dir = 'vertical' },
-                select_tab = act { open = open_single, dir = 'tab' },
-            }
-            for replaced, replacement in pairs(replace) do
-                actions[replaced]:replace(task_action(get_current, replacement))
-            end
+                local replace = {
+                    select_default = act { open = open_single },
+                    select_horizontal = act { open = open_single, dir = 'horizontal' },
+                    select_vertical = act { open = open_single, dir = 'vertical' },
+                    select_tab = act { open = open_single, dir = 'tab' },
+                }
+                for replaced, replacement in pairs(replace) do
+                    actions[replaced]:replace(task_action(get_current, replacement))
+                end
 
-            local info = multi_task_info('Spawned')
-            try_map(map, c.mappings.select_float, task_action(get_current, act { dir = 'float' }))
-            try_map(map, c.mappings.spawn_smart, task_action(get_smart, act(), info))
-            try_map(map, c.mappings.spawn_all, task_action(get_all, act(), info))
-            try_map(map, c.mappings.spawn_selected, task_action(get_selected, act(), info))
+                local info = multi_task_info('Spawned')
+                try_map(map, c.mappings.select_float, task_action(get_current, act { dir = 'float' }))
+                try_map(map, c.mappings.spawn_smart, task_action(get_smart, act(), info))
+                try_map(map, c.mappings.spawn_all, task_action(get_all, act(), info))
+                try_map(map, c.mappings.spawn_selected, task_action(get_selected, act(), info))
 
-            return true
-        end,
-    }):find()
+                return true
+            end,
+        })
+        :find()
 end
 
 function M.select(opts)
@@ -262,75 +264,79 @@ function M.select(opts)
 
     local c = config.telescope.select
 
-    pickers.new(opts, {
-        prompt_title = 'Select tasks',
-        finder = finders.new_table {
-            results = Task.get_all(),
-            entry_maker = make_task_entry,
-        },
-        sorter = conf.generic_sorter(opts),
-        previewer = terminal_previewer(opts),
-        attach_mappings = function(buf, map)
-            local act = function(act_opts)
-                act_opts = act_opts or {}
-                return function(task)
-                    if act_opts.typ == 'kill' then
-                        task:shutdown()
-                    elseif act_opts.typ == 'respawn' then
-                        task:respawn()
-                    else
-                        if act_opts.dir then
-                            task.term:change_direction(act_opts.dir)
+    pickers
+        .new(opts, {
+            prompt_title = 'Select tasks',
+            finder = finders.new_table {
+                results = Task.get_all(),
+                entry_maker = make_task_entry,
+            },
+            sorter = conf.generic_sorter(opts),
+            previewer = terminal_previewer(opts),
+            attach_mappings = function(buf, map)
+                local act = function(act_opts)
+                    act_opts = act_opts or {}
+                    return function(task)
+                        if act_opts.typ == 'kill' then
+                            task:shutdown()
+                        elseif act_opts.typ == 'respawn' then
+                            task:respawn()
+                        else
+                            if act_opts.dir then
+                                task.term:change_direction(act_opts.dir)
+                            end
+                            task.term:open()
                         end
-                        task.term:open()
                     end
                 end
-            end
 
-            local replace = {
-                select_default = act(),
-                select_horizontal = act { dir = 'horizontal' },
-                select_vertical = act { dir = 'vertical' },
-                select_tab = act { dir = 'tab' },
-            }
-            for replaced, replacement in pairs(replace) do
-                actions[replaced]:replace(task_action(get_current, replacement))
-            end
+                local replace = {
+                    select_default = act(),
+                    select_horizontal = act { dir = 'horizontal' },
+                    select_vertical = act { dir = 'vertical' },
+                    select_tab = act { dir = 'tab' },
+                }
+                for replaced, replacement in pairs(replace) do
+                    actions[replaced]:replace(task_action(get_current, replacement))
+                end
 
-            try_map(map, c.mappings.select_float, task_action(get_current, act { dir = 'float' }))
+                try_map(map, c.mappings.select_float, task_action(get_current, act { dir = 'float' }))
 
-            -- TODO: better handling of windows layout, maybe open all in new tab and arrange windows there
-            local info = multi_task_info('Opened')
-            try_map(map, c.mappings.open_smart, task_action(get_smart, act(), info))
-            try_map(map, c.mappings.open_all, task_action(get_all, act(), info))
-            try_map(map, c.mappings.open_selected, task_action(get_selected, act(), info))
+                -- TODO: better handling of windows layout, maybe open all in new tab and arrange windows there
+                local info = multi_task_info('Opened')
+                try_map(map, c.mappings.open_smart, task_action(get_smart, act(), info))
+                try_map(map, c.mappings.open_all, task_action(get_all, act(), info))
+                try_map(map, c.mappings.open_selected, task_action(get_selected, act(), info))
 
-            info = multi_task_info('Killed')
-            try_map(map, c.mappings.kill_smart, task_action(get_smart, act { typ = 'kill' }, info))
-            try_map(map, c.mappings.kill_all, task_action(get_all, act { typ = 'kill' }, info))
-            try_map(map, c.mappings.kill_selected, task_action(get_selected, act { typ = 'kill' }, info))
+                info = multi_task_info('Killed')
+                try_map(map, c.mappings.kill_smart, task_action(get_smart, act { typ = 'kill' }, info))
+                try_map(map, c.mappings.kill_all, task_action(get_all, act { typ = 'kill' }, info))
+                try_map(map, c.mappings.kill_selected, task_action(get_selected, act { typ = 'kill' }, info))
 
-            info = multi_task_info('Respawned')
-            try_map(map, c.mappings.respawn_smart, task_action(get_smart, act { typ = 'respawn' }, info))
-            try_map(map, c.mappings.respawn_all, task_action(get_all, act { typ = 'respawn' }, info))
-            try_map(map, c.mappings.respawn_selected, task_action(get_selected, act { typ = 'respawn' }, info))
+                info = multi_task_info('Respawned')
+                try_map(map, c.mappings.respawn_smart, task_action(get_smart, act { typ = 'respawn' }, info))
+                try_map(map, c.mappings.respawn_all, task_action(get_all, act { typ = 'respawn' }, info))
+                try_map(map, c.mappings.respawn_selected, task_action(get_selected, act { typ = 'respawn' }, info))
 
-            return true
-        end,
-    }):find()
+                return true
+            end,
+        })
+        :find()
 end
 
 function M.edit(opts)
     opts = opts or {}
-    pickers.new(opts, {
-        prompt_title = 'Edit config',
-        finder = finders.new_table {
-            results = discovery.config_files(opts),
-            entry_maker = make_entry.gen_from_file(opts),
-        },
-        previewer = conf.file_previewer(opts),
-        sorter = conf.file_sorter(opts),
-    }):find()
+    pickers
+        .new(opts, {
+            prompt_title = 'Edit config',
+            finder = finders.new_table {
+                results = discovery.config_files(opts),
+                entry_maker = make_entry.gen_from_file(opts),
+            },
+            previewer = conf.file_previewer(opts),
+            sorter = conf.file_sorter(opts),
+        })
+        :find()
 end
 
 return M
