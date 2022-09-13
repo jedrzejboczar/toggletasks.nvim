@@ -84,12 +84,16 @@ require('toggletasks').setup {
     },
     -- Directories to consider when searching for available tasks for current window
     scan = {
-        global_cwd = true,  -- vim.fn.getcwd(-1, -1)
-        tab_cwd = true,     -- vim.fn.getcwd(-1, tab)
-        win_cwd = true,     -- vim.fn.getcwd(win)
-        lsp_root = true,    -- root_dir for first LSP available for the buffer
-        dirs = {},          -- explicit list of directories to search
+        global_cwd = true,    -- vim.fn.getcwd(-1, -1)
+        tab_cwd = true,       -- vim.fn.getcwd(-1, tab)
+        win_cwd = true,       -- vim.fn.getcwd(win)
+        lsp_root = true,      -- root_dir for first LSP available for the buffer
+        dirs = {},            -- explicit list of directories to search or function(win): dirs
+        rtp = false,          -- scan directories in &runtimepath
+        rtp_ftplugin = false, -- scan in &rtp by filetype, e.g. ftplugin/c/toggletasks.json
     },
+    tasks = {}, -- list of global tasks or function(win): tasks
+                -- this is basically the "Config format" defined using Lua tables
     -- Language server priorities when selecting lsp_root (default is 0)
     lsp_priorities = {
         ['null-ls'] = -10,
