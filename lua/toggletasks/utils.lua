@@ -108,6 +108,17 @@ function M.short_path(path)
     end
 end
 
+-- For variables that can be values or functions.
+function M.as_function(fn_or_value)
+    if type(fn_or_value) == 'function' then
+        return fn_or_value
+    else
+        return function(...)
+            return fn_or_value
+        end
+    end
+end
+
 -- Lazily evaluate a function, caching the result of the first call
 -- for all subsequent calls ever.
 function M.lazy(fn)

@@ -14,7 +14,7 @@ function M.config_dirs(opts)
 
     local work_dirs = utils.get_work_dirs(win)
     local dirs = {}
-    vim.list_extend(dirs, scan.dirs)
+    vim.list_extend(dirs, utils.as_function(scan.dirs)(win))
     if scan.win_cwd then
         table.insert(dirs, work_dirs.win)
     end
