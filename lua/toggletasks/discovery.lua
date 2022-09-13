@@ -131,6 +131,11 @@ function M.tasks(opts)
     end
     utils.debug('discover: found %d tasks in total', #tasks)
 
+    -- Add global tasks
+    local win = opts.win or vim.api.nvim_get_current_win()
+    local global = utils.as_function(config.tasks)(win)
+    vim.list_extend(tasks, Task:from_list(global))
+
     return TaskQuery:new(tasks)
 end
 

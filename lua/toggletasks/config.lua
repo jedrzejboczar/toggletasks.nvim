@@ -23,6 +23,7 @@ local function defaults()
             rtp = false,
             rtp_ftplugin = false,
         },
+        tasks = {},
         lsp_priorities = {
             ['null-ls'] = -10,
         },

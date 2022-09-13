@@ -48,6 +48,26 @@ function Task:new(conf, config_file)
     }, self)
 end
 
+local function from_list(list, file)
+    local tasks = {}
+    local config_file = file and file:absolute() or nil
+    local fn_name = file and 'from_config' or 'from_list'
+    for i, task_conf in ipairs(list) do
+        utils.debug('%s: parsing %d: %s', fn_name, i, vim.inspect(task_conf))
+        local ok, task_or_err = pcall(Task.new, Task, task_conf, config_file)
+        if ok then
+            table.insert(tasks, task_or_err)
+        else
+            if file then
+                utils.error('Invalid task %d in config "%s": %s', i, config_file, task_or_err)
+            else
+                utils.error('Invalid task %d in list: %s', i, config_file, task_or_err)
+            end
+        end
+    end
+    return tasks
+end
+
 -- Extract tasks from a JSON config file
 function Task:from_config(config_file)
     config_file = Path:new(config_file)
@@ -55,18 +75,12 @@ function Task:from_config(config_file)
     if not conf then
         return
     end
+    return from_list(conf.tasks or {}, config_file)
+end
 
-    local tasks = {}
-    for i, task_conf in ipairs(conf.tasks or {}) do
-        utils.debug('from_config: parsing %d: %s', i, vim.inspect(task_conf))
-        local ok, task_or_err = pcall(Task.new, Task, task_conf, config_file:absolute())
-        if ok then
-            table.insert(tasks, task_or_err)
-        else
-            utils.error('Invalid task %d in config "%s": %s', i, config_file:absolute(), task_or_err)
-        end
-    end
-    return tasks
+-- Add tasks from a list-like table, equivalent to the contents of "tasks" in a JSON
+function Task:from_list(list)
+    return from_list(list)
 end
 
 -- Expand "${something}" but not "$${something}"

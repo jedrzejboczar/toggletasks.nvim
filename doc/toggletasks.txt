@@ -124,6 +124,8 @@ plugin. Available options (with default values):
             rtp = false,          -- scan directories in &runtimepath
             rtp_ftplugin = false, -- scan in &rtp by filetype, e.g. ftplugin/c/toggletasks.json
         },
+        tasks = {}, -- list of global tasks or function(win): tasks
+                    -- this is basically *toggletasks-config-format* defined using Lua tables
         -- Language server priorities when selecting lsp_root (default is 0)
         lsp_priorities = {
             ['null-ls'] = -10,
