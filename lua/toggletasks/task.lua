@@ -149,7 +149,7 @@ function Task:_expand(str, win, opts)
         -- Expands to directory of config file if exists
         config_dir = self.config_file and Path:new(self.config_file):parent():absolute(),
         -- Expands to root directory of LSP client with highest priority
-        lsp_root = dirs.lsp,
+        lsp_root = dirs.lsp and dirs.lsp[1],
         -- Expand vim cwd types
         win_cwd = dirs.win,
         tab_cwd = dirs.tab,
