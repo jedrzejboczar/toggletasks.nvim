@@ -130,12 +130,14 @@ function M.tasks(opts)
         utils.debug('discover: found %d tasks in file: %s', #found, utils.short_path(file))
         vim.list_extend(tasks, found)
     end
-    utils.debug('discover: found %d tasks in total', #tasks)
+    local n_from_files = #tasks
 
     -- Add global tasks
     local win = opts.win or vim.api.nvim_get_current_win()
     local global = utils.as_function(config.tasks)(win)
     vim.list_extend(tasks, Task:from_list(global))
+
+    utils.debug('discover: found %d tasks in total (%d from files)', #tasks, n_from_files)
 
     return TaskQuery:new(tasks)
 end
