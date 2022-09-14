@@ -120,6 +120,7 @@ end
 -- Find all tasks for given/current window, returning a list wrapped in TaskQuery.
 -- Can be filtered as `M.tasks():with_tag('dev'):no_tag('build')`
 function M.tasks(opts)
+    opts = opts or {}
     local files = M.config_files(opts)
 
     -- Create tasks
