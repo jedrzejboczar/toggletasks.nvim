@@ -250,16 +250,16 @@ function M.spawn(opts)
 
                 local info = multi_task_info('Spawned')
                 -- Enable action names being shown in which_key (after pressing "?")
-                local actions = transform_mod({
+                local a = transform_mod {
                     task_select_float = task_action(get_current, act { dir = 'float' }),
                     task_spawn_smart = task_action(get_smart, act(), info),
                     task_spawn_all = task_action(get_all, act(), info),
                     task_spawn_selected = task_action(get_selected, act(), info),
-                })
-                try_map(map, c.mappings.select_float, actions.task_select_float)
-                try_map(map, c.mappings.spawn_smart, actions.task_spawn_smart)
-                try_map(map, c.mappings.spawn_all, actions.task_spawn_all)
-                try_map(map, c.mappings.spawn_selected, actions.task_spawn_selected)
+                }
+                try_map(map, c.mappings.select_float, a.task_select_float)
+                try_map(map, c.mappings.spawn_smart, a.task_spawn_smart)
+                try_map(map, c.mappings.spawn_all, a.task_spawn_all)
+                try_map(map, c.mappings.spawn_selected, a.task_spawn_selected)
 
                 return true
             end,
@@ -309,36 +309,36 @@ function M.select(opts)
                 end
 
                 -- Enable action names being shown in which_key (after pressing "?")
-                local actions = {}
-                actions.task_select_float = task_action(get_current, act { dir = 'float' })
+                local a = {}
+                a.task_select_float = task_action(get_current, act { dir = 'float' })
 
                 -- TODO: better handling of windows layout, maybe open all in new tab and arrange windows there
                 local info = multi_task_info('Opened')
-                actions.task_open_smart = task_action(get_smart, act(), info)
-                actions.task_open_all = task_action(get_all, act(), info)
-                actions.task_open_selected = task_action(get_selected, act(), info)
+                a.task_open_smart = task_action(get_smart, act(), info)
+                a.task_open_all = task_action(get_all, act(), info)
+                a.task_open_selected = task_action(get_selected, act(), info)
 
                 info = multi_task_info('Killed')
-                actions.task_kill_smart = task_action(get_smart, act { typ = 'kill' }, info)
-                actions.task_kill_all = task_action(get_all, act { typ = 'kill' }, info)
-                actions.task_kill_selected = task_action(get_selected, act { typ = 'kill' }, info)
+                a.task_kill_smart = task_action(get_smart, act { typ = 'kill' }, info)
+                a.task_kill_all = task_action(get_all, act { typ = 'kill' }, info)
+                a.task_kill_selected = task_action(get_selected, act { typ = 'kill' }, info)
 
                 info = multi_task_info('Respawned')
-                actions.task_respawn_smart = task_action(get_smart, act { typ = 'respawn' }, info)
-                actions.task_respawn_all = task_action(get_all, act { typ = 'respawn' }, info)
-                actions.task_respawn_selected = task_action(get_selected, act { typ = 'respawn' }, info)
+                a.task_respawn_smart = task_action(get_smart, act { typ = 'respawn' }, info)
+                a.task_respawn_all = task_action(get_all, act { typ = 'respawn' }, info)
+                a.task_respawn_selected = task_action(get_selected, act { typ = 'respawn' }, info)
 
-                actions = transform_mod(actions)
-                try_map(map, c.mappings.select_float, actions.task_select_float)
-                try_map(map, c.mappings.open_smart, actions.task_open_smart)
-                try_map(map, c.mappings.open_all, actions.task_open_all)
-                try_map(map, c.mappings.open_selected, actions.task_open_selected)
-                try_map(map, c.mappings.kill_smart, actions.task_kill_smart)
-                try_map(map, c.mappings.kill_all, actions.task_kill_all)
-                try_map(map, c.mappings.kill_selected, actions.task_kill_selected)
-                try_map(map, c.mappings.respawn_smart, actions.task_respawn_smart)
-                try_map(map, c.mappings.respawn_all, actions.task_respawn_all)
-                try_map(map, c.mappings.respawn_selected, actions.task_respawn_selected)
+                a = transform_mod(a)
+                try_map(map, c.mappings.select_float, a.task_select_float)
+                try_map(map, c.mappings.open_smart, a.task_open_smart)
+                try_map(map, c.mappings.open_all, a.task_open_all)
+                try_map(map, c.mappings.open_selected, a.task_open_selected)
+                try_map(map, c.mappings.kill_smart, a.task_kill_smart)
+                try_map(map, c.mappings.kill_all, a.task_kill_all)
+                try_map(map, c.mappings.kill_selected, a.task_kill_selected)
+                try_map(map, c.mappings.respawn_smart, a.task_respawn_smart)
+                try_map(map, c.mappings.respawn_all, a.task_respawn_all)
+                try_map(map, c.mappings.respawn_selected, a.task_respawn_selected)
 
                 return true
             end,
