@@ -7,6 +7,7 @@ local finders = require('telescope.finders')
 local make_entry = require('telescope.make_entry')
 local pickers = require('telescope.pickers')
 local previewers = require('telescope.previewers')
+local transform_mod = require('telescope.actions.mt').transform_mod
 
 local Task = require('toggletasks.task')
 local discovery = require('toggletasks.discovery')
@@ -248,10 +249,17 @@ function M.spawn(opts)
                 end
 
                 local info = multi_task_info('Spawned')
-                try_map(map, c.mappings.select_float, task_action(get_current, act { dir = 'float' }))
-                try_map(map, c.mappings.spawn_smart, task_action(get_smart, act(), info))
-                try_map(map, c.mappings.spawn_all, task_action(get_all, act(), info))
-                try_map(map, c.mappings.spawn_selected, task_action(get_selected, act(), info))
+                -- Enable action names being shown in which_key (after pressing "?")
+                local actions = transform_mod({
+                    task_select_float = task_action(get_current, act { dir = 'float' }),
+                    task_spawn_smart = task_action(get_smart, act(), info),
+                    task_spawn_all = task_action(get_all, act(), info),
+                    task_spawn_selected = task_action(get_selected, act(), info),
+                })
+                try_map(map, c.mappings.select_float, actions.task_select_float)
+                try_map(map, c.mappings.spawn_smart, actions.task_spawn_smart)
+                try_map(map, c.mappings.spawn_all, actions.task_spawn_all)
+                try_map(map, c.mappings.spawn_selected, actions.task_spawn_selected)
 
                 return true
             end,
@@ -300,23 +308,37 @@ function M.select(opts)
                     actions[replaced]:replace(task_action(get_current, replacement))
                 end
 
-                try_map(map, c.mappings.select_float, task_action(get_current, act { dir = 'float' }))
+                -- Enable action names being shown in which_key (after pressing "?")
+                local actions = {}
+                actions.task_select_float = task_action(get_current, act { dir = 'float' })
 
                 -- TODO: better handling of windows layout, maybe open all in new tab and arrange windows there
                 local info = multi_task_info('Opened')
-                try_map(map, c.mappings.open_smart, task_action(get_smart, act(), info))
-                try_map(map, c.mappings.open_all, task_action(get_all, act(), info))
-                try_map(map, c.mappings.open_selected, task_action(get_selected, act(), info))
+                actions.task_open_smart = task_action(get_smart, act(), info)
+                actions.task_open_all = task_action(get_all, act(), info)
+                actions.task_open_selected = task_action(get_selected, act(), info)
 
                 info = multi_task_info('Killed')
-                try_map(map, c.mappings.kill_smart, task_action(get_smart, act { typ = 'kill' }, info))
-                try_map(map, c.mappings.kill_all, task_action(get_all, act { typ = 'kill' }, info))
-                try_map(map, c.mappings.kill_selected, task_action(get_selected, act { typ = 'kill' }, info))
+                actions.task_kill_smart = task_action(get_smart, act { typ = 'kill' }, info)
+                actions.task_kill_all = task_action(get_all, act { typ = 'kill' }, info)
+                actions.task_kill_selected = task_action(get_selected, act { typ = 'kill' }, info)
 
                 info = multi_task_info('Respawned')
-                try_map(map, c.mappings.respawn_smart, task_action(get_smart, act { typ = 'respawn' }, info))
-                try_map(map, c.mappings.respawn_all, task_action(get_all, act { typ = 'respawn' }, info))
-                try_map(map, c.mappings.respawn_selected, task_action(get_selected, act { typ = 'respawn' }, info))
+                actions.task_respawn_smart = task_action(get_smart, act { typ = 'respawn' }, info)
+                actions.task_respawn_all = task_action(get_all, act { typ = 'respawn' }, info)
+                actions.task_respawn_selected = task_action(get_selected, act { typ = 'respawn' }, info)
+
+                actions = transform_mod(actions)
+                try_map(map, c.mappings.select_float, actions.task_select_float)
+                try_map(map, c.mappings.open_smart, actions.task_open_smart)
+                try_map(map, c.mappings.open_all, actions.task_open_all)
+                try_map(map, c.mappings.open_selected, actions.task_open_selected)
+                try_map(map, c.mappings.kill_smart, actions.task_kill_smart)
+                try_map(map, c.mappings.kill_all, actions.task_kill_all)
+                try_map(map, c.mappings.kill_selected, actions.task_kill_selected)
+                try_map(map, c.mappings.respawn_smart, actions.task_respawn_smart)
+                try_map(map, c.mappings.respawn_all, actions.task_respawn_all)
+                try_map(map, c.mappings.respawn_selected, actions.task_respawn_selected)
 
                 return true
             end,
