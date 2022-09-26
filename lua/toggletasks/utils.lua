@@ -32,6 +32,14 @@ M.warn_once = logger(vim.log.levels.WARN, 'notify_once')
 M.error = logger(vim.log.levels.ERROR, 'notify')
 M.error_once = logger(vim.log.levels.ERROR, 'notify_once')
 
+function M.deprecated(old_name, old_value, new_name, new_value)
+    if old_value then
+        M.warn_once('toggletasks.nvim: %s is deprecated, use %s', old_name, new_name)
+    end
+    -- New value overrides the old one
+    return new_value or old_value
+end
+
 function M.as_table(v)
     return type(v) ~= 'table' and { v } or v
 end

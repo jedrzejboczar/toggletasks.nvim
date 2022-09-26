@@ -27,7 +27,7 @@ local function defaults()
         lsp_priorities = {
             ['null-ls'] = -10,
         },
-        defaults = {
+        toggleterm = {
             close_on_exit = false,
             hidden = true,
         },
