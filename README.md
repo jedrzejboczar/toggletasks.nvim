@@ -98,8 +98,8 @@ require('toggletasks').setup {
     lsp_priorities = {
         ['null-ls'] = -10,
     },
-    -- Default values for task configuration options (available options described later)
-    defaults = {
+    -- Defaults used when opening task's terminal (see Terminal:new() in toggleterm/terminal.lua)
+    toggleterm = {
         close_on_exit = false,
         hidden = true,
     },

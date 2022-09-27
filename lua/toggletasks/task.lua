@@ -39,13 +39,31 @@ function Task:new(conf, config_file)
             tags = utils.as_table(conf.tags or {}),
             env = env,
             clear_env = conf.clear_env,
-            close_on_exit = vim.F.if_nil(conf.close_on_exit, config.defaults.close_on_exit),
-            hidden = vim.F.if_nil(conf.hidden, config.defaults.hidden),
+            close_on_exit = conf.close_on_exit,
+            hidden = conf.hidden,
             count = conf.count,
         },
         config_file = config_file,
         term = nil,
     }, self)
+end
+
+function Task:_terminal_opts(win)
+    local reserved = {
+        cmd = self:expand_cmd(win),
+        dir = self:expand_cwd(win),
+        env = self:expand_env(win),
+    }
+    local task_local = {
+        close_on_exit = self.config.close_on_exit,
+        clear_env = self.config.clear_env,
+        hidden = self.config.hidden,
+        count = self.config.count,
+    }
+    local global = utils.deprecated('config.defaults', config.defaults, 'config.toggleterm', config.toggleterm)
+
+    task_local = vim.tbl_extend('keep', task_local, global)
+    return vim.tbl_extend('error', reserved, task_local)
 end
 
 local function from_list(list, file)
@@ -276,15 +294,7 @@ function Task:spawn(win)
     -- Ensure this task is not running
     Task.delete(self:id())
 
-    local opts = {
-        cmd = self:expand_cmd(win),
-        dir = self:expand_cwd(win),
-        close_on_exit = self.config.close_on_exit,
-        env = self:expand_env(win),
-        clear_env = self.config.clear_env,
-        hidden = self.config.hidden,
-        count = self.config.count,
-    }
+    local opts = self:_terminal_opts(win)
     utils.debug('Task:spawn: with opts: %s', vim.inspect(opts))
 
     self.term = Terminal:new(opts)
