@@ -178,6 +178,8 @@ Available special variables (snake case to minimize collisions with env):
 * `${tab_cwd}` - Vim's tab-local CWD
 * `${global_cwd}` - Vim's global CWD
 * `${file}` - absolute path to the current buffer's file
+* `${file_line_row}` - cursor line of the current buffer
+* `${file_line_column}` - cursor column of the current buffer
 
 Vim [filename-modifiers](https://neovim.io/doc/user/cmdline.html#filename-modifiers) can be used inside the expansion
 to modify the paths (by default all paths are absoulte),
