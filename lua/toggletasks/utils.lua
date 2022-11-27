@@ -98,6 +98,14 @@ function M.get_work_dirs(win)
     }
 end
 
+function M.get_file_line(win)
+  local r, c = unpack(vim.api.nvim_win_get_cursor(win))
+  return {
+    row = r,
+    column = c,
+  }
+end
+
 function M.split_lines(s, trimempty)
     return vim.split(s, '\n', { plain = true, trimempty = trimempty })
 end
