@@ -162,7 +162,7 @@ function Task:_expand(str, win, opts)
     local filename = vim.api.nvim_buf_get_name(buf)
 
     local dirs = utils.get_work_dirs(win)
-    local line = utils.get_file_line(win)
+    local line = utils.get_win_cursor(win)
 
     local vars = {
         -- Expands to directory of config file if exists
@@ -174,8 +174,8 @@ function Task:_expand(str, win, opts)
         tab_cwd = dirs.tab,
         global_cwd = dirs.global,
         -- Expand line info
-        file_line_row = line.row,
-        file_line_column = line.column,
+        cursor_line = line.line,
+        cursor_column = line.column,
         -- Expand current file
         file = vim.fn.fnamemodify(filename, ':p'),
         -- Leave for backwards compatibility, though these can be achieved by e.g. "${file:p:t}"
