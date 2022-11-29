@@ -251,6 +251,26 @@ tasks:
   - dev
 ```
 
+YAML configuration with [anchors and aliases](https://www.educative.io/blog/advanced-yaml-syntax-cheatsheet#anchors)
+to share common keys:
+
+```yaml
+# Common for commands that run in python virtual environment
+_venv: &venv
+  cwd: ${config_dir}
+  env:
+    PATH: ${config_dir}/venv/bin:${PATH}
+
+tasks:
+  - name: django runserver
+    cmd: python manage.py runserver
+    <<: *venv
+
+  - name: django test
+    cmd: python manage.py test
+    <<: *venv
+```
+
 ## Usage
 
 To use this plugin use the included telescope pickers:
