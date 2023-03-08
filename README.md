@@ -17,6 +17,12 @@ Neovim task runner: JSON/YAML + [toggleterm.nvim](https://github.com/akinsho/tog
 
 ![usage video example](https://media.giphy.com/media/JrTEO0q8lkLVNLrehQ/giphy.gif)
 
+## Other options
+
+If you're looking for even more features I'd recommend trying [overseer.nvim](https://github.com/stevearc/overseer.nvim), 
+as toggletasks.nvim probably won't be receiving new features in the nearest future. 
+See https://github.com/jedrzejboczar/toggletasks.nvim/issues/16#issuecomment-1460742344 for more info.
+
 ## Overview
 
 The main idea behind this plugin is to be able to easily define build/setup commands for different
