@@ -4,19 +4,17 @@
 Table of Contents                              *toggletasks-table-of-contents*
 
 1. toggletasks.nvim                             |toggletasks-toggletasks.nvim|
-  - Features                                            |toggletasks-features|
-  - Overview                                            |toggletasks-overview|
-  - Installation                                    |toggletasks-installation|
-  - Configuration                                  |toggletasks-configuration|
-  - Config format                                  |toggletasks-config-format|
-  - Usage                                                  |toggletasks-usage|
-  - Global tasks                                    |toggletasks-global-tasks|
-  - TODO                                                    |toggletasks-todo|
-
-<img
-src='https://github.com/jedrzejboczar/toggletasks.nvim/actions/workflows/lint.yml/badge.svg'
-title=''/>
+  - Features                           |toggletasks-toggletasks.nvim-features|
+  - Other options                 |toggletasks-toggletasks.nvim-other-options|
+  - Overview                           |toggletasks-toggletasks.nvim-overview|
+  - Installation                   |toggletasks-toggletasks.nvim-installation|
+  - Configuration                 |toggletasks-toggletasks.nvim-configuration|
+  - Config format                 |toggletasks-toggletasks.nvim-config-format|
+  - Usage                                 |toggletasks-toggletasks.nvim-usage|
+  - Global tasks                   |toggletasks-toggletasks.nvim-global-tasks|
+  - TODO                                   |toggletasks-toggletasks.nvim-todo|
 <https://github.com/jedrzejboczar/toggletasks.nvim/actions/workflows/lint.yml>
+
 
 ==============================================================================
 1. toggletasks.nvim                             *toggletasks-toggletasks.nvim*
@@ -25,7 +23,8 @@ Neovim task runner: JSON/YAML + toggleterm.nvim
 <https://github.com/akinsho/toggleterm.nvim> + telescope.nvim
 <https://github.com/nvim-telescope/telescope.nvim/>.
 
-FEATURES                                                *toggletasks-features*
+
+FEATURES                               *toggletasks-toggletasks.nvim-features*
 
 
 - Define task via JSON, similarly to VS Code Tasks <https://code.visualstudio.com/Docs/editor/tasks>
@@ -38,12 +37,16 @@ FEATURES                                                *toggletasks-features*
 - Automatic spawning on e.g. `SessionLoadPost` (see |toggletasks-automatic-task-spawning|)
 
 
-<div class="figure">
-<img src="https://media.giphy.com/media/JrTEO0q8lkLVNLrehQ/giphy.gif" title="fig:"/>
-<p class="caption">usage video example</p>
-</div>
+OTHER OPTIONS                     *toggletasks-toggletasks.nvim-other-options*
 
-OVERVIEW                                                *toggletasks-overview*
+If you’re looking for even more features I’d recommend trying overseer.nvim
+<https://github.com/stevearc/overseer.nvim>, as toggletasks.nvim probably
+won’t be receiving new features in the nearest future. See
+https://github.com/jedrzejboczar/toggletasks.nvim/issues/16#issuecomment-1460742344
+for more info.
+
+
+OVERVIEW                               *toggletasks-toggletasks.nvim-overview*
 
 The main idea behind this plugin is to be able to easily define build/setup
 commands for different projects, independently of your global editor
@@ -67,7 +70,6 @@ things from scratch, i.e.
 - no terminal management from scratch - integrate with toggleterm.nvim <https://github.com/akinsho/toggleterm.nvim>
 - no selection UI from scratch - integrate with telescope.nvim <https://github.com/nvim-telescope/telescope.nvim/>
 
-
 Other differences:
 
 
@@ -80,11 +82,11 @@ Other differences:
     but maybe something to consider in the future
 
 
-INSTALLATION                                        *toggletasks-installation*
+INSTALLATION                       *toggletasks-toggletasks.nvim-installation*
 
 Example using packer.nvim <https://github.com/wbthomason/packer.nvim>:
 
->
+>lua
     use {
         'jedrzejboczar/toggletasks.nvim',
         requires = {
@@ -98,12 +100,12 @@ Example using packer.nvim <https://github.com/wbthomason/packer.nvim>:
 <
 
 
-CONFIGURATION                                      *toggletasks-configuration*
+CONFIGURATION                     *toggletasks-toggletasks.nvim-configuration*
 
 Run `require('toggletasks').setup { ... }` in your `init.lua` to configure this
 plugin. Available options (with default values):
 
->
+>lua
     require('toggletasks').setup {
         debug = false,
         silent = false,  -- don't show "info" messages
@@ -170,15 +172,14 @@ plugin. Available options (with default values):
     }
 <
 
-
 To load telescope pickers:
 
->
+>lua
     require('telescope').load_extension('toggletasks')
 <
 
 
-CONFIG FORMAT                                      *toggletasks-config-format*
+CONFIG FORMAT                     *toggletasks-toggletasks.nvim-config-format*
 
 JSON configuration files are supported out-of-the-box via `vim.json` module. To
 enable YAML support, lyaml <https://github.com/gvvaughan/lyaml> must be
@@ -188,19 +189,40 @@ installed. It is possible to use packer to install luarocks
 
 Available fields:
 
-│    Field    │           Type           │                                                                                 Description                                                                                 │
-│name         │string                    │descriptive name for the task; pair (name, config_file) is used to uniquely identify a task (to kill existing if re-running or to filter out already running tasks in picker)│
-│id           │string?                   │Optional ID to use instead of the default pair (name, config_file)                                                                                                           │
-│cmd          │string                    │Command to run                                                                                                                                                               │
-│cwd          │string?                   │Task working directory                                                                                                                                                       │
-│tags         │table<string>?            │Tags used to group and filter tasks                                                                                                                                          │
-│env          │table<string, string>?    │Additional environmental variables passed to task                                                                                                                            │
-│clear_env    │boolean?                  │If set to true, only environmental variables from env will be passed to task                                                                                                 │
-│close_on_exit│boolean?                  │Auto-close terminal when task job exists (see toggleterm <https://github.com/akinsho/toggleterm.nvim#custom-terminals>)                                                      │
-│hidden       │boolean?                  │Don’t include this task in toggleterm tasks list (see toggleterm <https://github.com/akinsho/toggleterm.nvim#custom-terminals>)                                            │
-│count        │number?                   │Use given terminal number (see toggleterm <https://github.com/akinsho/toggleterm.nvim#custom-terminals>)                                                                     │
+  ----------------------------------------------------------------------------------
+  Field             Type                     Description
+  ----------------- ------------------------ ---------------------------------------
+  name              string                   descriptive name for the task; pair
+                                             (name, config_file) is used to uniquely
+                                             identify a task (to kill existing if
+                                             re-running or to filter out already
+                                             running tasks in picker)
 
+  id                string?                  Optional ID to use instead of the
+                                             default pair (name, config_file)
 
+  cmd               string                   Command to run
+
+  cwd               string?                  Task working directory
+
+  tags              table<string>?           Tags used to group and filter tasks
+
+  env               table<string, string>?   Additional environmental variables
+                                             passed to task
+
+  clear_env         boolean?                 If set to true, only environmental
+                                             variables from env will be passed to
+                                             task
+
+  close_on_exit     boolean?                 Auto-close terminal when task job
+                                             exists (see toggleterm)
+
+  hidden            boolean?                 Don’t include this task in toggleterm
+                                             tasks list (see toggleterm)
+
+  count             number?                  Use given terminal number (see
+                                             toggleterm)
+  ----------------------------------------------------------------------------------
 Variable expansion is supported using the syntax `${VAR}` (escaped by double
 `$`, e.g. `$${VAR}` will expand to `${VAR}`).
 
@@ -218,14 +240,13 @@ Available special variables (snake case to minimize collisions with env):
 - `${cursor_line}` - cursor line of the current window
 - `${cursor_column}` - cursor column of the current window
 
-
 Vim |filename-modifiers| can be used inside the expansion to modify the paths
 (by default all paths are absoulte), e.g. `${file:t:r}` will transform
 `/path/to/my-file.txt` into `my-file`.
 
 JSON configuration example file:
 
->
+>json
     {
         "tasks": [
             {
@@ -274,10 +295,9 @@ JSON configuration example file:
     }
 <
 
-
 YAML configuration example:
 
->
+>yaml
     tasks:
     - name: Echo example
       cmd: echo 'Current file = ${file}'
@@ -290,12 +310,11 @@ YAML configuration example:
       - dev
 <
 
-
 YAML configuration with anchors and aliases
 <https://www.educative.io/blog/advanced-yaml-syntax-cheatsheet#anchors> to
 share common keys:
 
->
+>yaml
     # Common for commands that run in python virtual environment
     _venv: &venv
       cwd: ${config_dir}
@@ -313,7 +332,7 @@ share common keys:
 <
 
 
-USAGE                                                      *toggletasks-usage*
+USAGE                                     *toggletasks-toggletasks.nvim-usage*
 
 To use this plugin use the included telescope pickers:
 
@@ -322,14 +341,12 @@ To use this plugin use the included telescope pickers:
 - select running tasks (open/kill/respawn): `Telescope toggletasks select`
 - edit config files: `Telescope toggletasks edit`
 
-
 These commands can be mapped to keybindings, e.g.
 
->
+>lua
     vim.keymap.set('n', '<space>ts', require('telescope').extensions.toggletasks.spawn,
         { desc = 'toggletasks: spawn' })
 <
-
 
 When selecting tasks to be spawned, one can just type `#tagname` in the prompt
 to filter based on tag. This is currently using the default string based
@@ -337,6 +354,7 @@ matching but should work correctly in most cases. To select all tasks that are
 currently visible press `<C-a>` (default). To manually pick tasks use
 `<Tab>`/`<S-Tab>` (telescope defaults) to perform multi-selection and press
 `<C-a>` to spawn selected tasks.
+
 
 COMMANDS ~
 
@@ -356,15 +374,14 @@ function to achieve that.
 For example, to launch all tasks marked with the `auto` tag whenever a session
 is loaded use:
 
->
+>lua
     require('toggletasks').auto_spawn('SessionLoadPost', 'auto')
 <
-
 
 The first argument (`event`) is the same as for `vim.api.nvim_create_autocmd`.
 For more fine grained `auto_spawn` can take a function as the second argument:
 
->
+>lua
     require('toggletasks').auto_spawn({'VimEnter', 'SessionLoadPost'}, function(tasks)
         return tasks
             :with_tag('auto')
@@ -378,7 +395,7 @@ For more fine grained `auto_spawn` can take a function as the second argument:
 <
 
 
-GLOBAL TASKS                                        *toggletasks-global-tasks*
+GLOBAL TASKS                       *toggletasks-toggletasks.nvim-global-tasks*
 
 Sometimes it would be handy to share some common tasks between projects without
 the need to add config files to all of these. It might also be handy to only
@@ -390,20 +407,24 @@ this in `toggletasks.nvim`.
 (e.g. `~/.config/nvim/toggletasks.json`) and enable option `scan.rtp = true`.
 Note that this adds a lot of paths for scanning so in theory it might have some
 performance impact (but probably not noticeable).
+
 2. Put task config files for given filetypes under `ftplugin/FILETYPE` in
 `&runtimepath` and enable the option `scan.rtp_ftplugin = true` (should be much
 faster than 1.). For example, to add Lua-specific tasks one could add a file
 `~/.config/nvim/ftplugin/lua/toggletasks.json`.
+
 3. Use the setup option `scan.dirs` as a `function(win)`, and return the
 directories in which to search for task config files. You can use the `win`
 argument to get the filetype of current buffer, or to check any other
 conditions, which can be used to select specific directories with task config
 files.
+
 4. Define tasks directly in Lua in your setup function. Use a function to have
 even more control over which tasks should be included, e.g.
 
 
->
+
+>lua
     require('toggletasks').setup {
         tasks = function(win)
             local ft = vim.api.nvim_buf_get_option(vim.api.nvim_win_get_buf(win), 'filetype')
@@ -423,13 +444,18 @@ even more control over which tasks should be included, e.g.
 <
 
 
-TODO                                                        *toggletasks-todo*
+TODO                                       *toggletasks-toggletasks.nvim-todo*
 
 
 - ☐ Integration with possession.nvim <https://github.com/jedrzejboczar/possession.nvim> by marking
     tasks with `possession` tag - no changes required in this plugin
 - ☐ Task "templates": one task could inherit options from another ("extends")
 
+==============================================================================
+2. Links                                                   *toggletasks-links*
+
+1. *Lint*: https://github.com/jedrzejboczar/toggletasks.nvim/actions/workflows/lint.yml/badge.svg
+2. *usage video example*: https://media.giphy.com/media/JrTEO0q8lkLVNLrehQ/giphy.gif
 
 Generated by panvimdoc <https://github.com/kdheepak/panvimdoc>
 
